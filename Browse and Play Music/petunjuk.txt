@@ -1,0 +1,2 @@
+- buat folder dengan nama source sebagai tempat file awal musik yang ingin di split
+- buat folder dengan nama destination sebagai tempat file tujuan setelah di split
