@@ -1,4 +1,4 @@
-import Tkinter
+import Tkinter, Tkconstants, tkFileDialog
 from Tkinter import *
 import glob
 import winsound #untuk play dan stop music
@@ -28,9 +28,20 @@ def duration(file,string):
 
 #fungsi untuk tombol browse
 def browse():
-	string = str(input_browse.get())
-	for file in glob.glob("source/"+string+".wav"): #read file dari folder source
-		duration(file,string)
+	file_dialog = Tkinter.Tk()
+	file_dialog.withdraw()
+	global file_name #global variabel
+	global string
+	file_name = tkFileDialog.askopenfilename(initialdir = "/",title = "Select File",filetypes = (("wav file","*.wav"),("all files","*.*")))
+
+	split_file_name = file_name.split("/")
+	input_browse.insert(1,(split_file_name[len(split_file_name)-1]))
+	string = split_file_name[len(split_file_name)-1].split(".wav")
+
+#untuk mulai split
+def go():
+	duration(file_name,string[0])
+
 
 #fungsi untuk play music pada folder destination
 def play_music(wav_name):
@@ -38,7 +49,7 @@ def play_music(wav_name):
 
 #fungsi untuk stop music pada folder destination
 def stop_music(wav_name):
-	winsound.PlaySound(None, winsound.SND_FILENAME)
+	winsound.PlaySound(None, winsound.SND_FILENAME|winsound.SND_ASYNC)
 
 #create tabel
 def tabel_isi(baris,no,filename,pengenalan,data):
@@ -71,14 +82,14 @@ def tabel_isi(baris,no,filename,pengenalan,data):
 #menulis judul pada window
 root.title("Browse Music")
 
-#membuat tombol browse
-btn_browse = Tkinter.Button(root, text = "BROWSE", command=browse)
-btn_browse.grid(row=0,column=1)
 #membuat inputan browse
 input_browse = StringVar()
 input_browse = Tkinter.Entry(root, textvariable=input_browse)
-#input_browse.insert(1,"asdfgh")
 input_browse.grid(row=0,column=0)
+
+#membuat tombol browse
+btn_browse = Tkinter.Button(root, text = "BROWSE", command=browse)
+btn_browse.grid(row=0,column=1)
 
 blank(1,0)
 #membuat label durasi
@@ -87,6 +98,9 @@ label_durasi.grid(row=2,column=0)
 #membuat inputan durasi
 input_durasi = Spinbox(root,from_=0,to=3600,state="normal")
 input_durasi.grid(row=2,column=1)
+#membuat tombol go
+btn_browse = Tkinter.Button(root, text = "SPLIT", command=go)
+btn_browse.grid(row=2,column=2)
 
 blank(3,0)
 #membuat tabel header
