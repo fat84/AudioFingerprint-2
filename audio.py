@@ -83,22 +83,10 @@ class AudioFile:
         plt.title("Frequency response of Hamming window")
         plt.ylabel("Magnitude [dB]")
         plt.xlabel("Normalized frequency [cycles per sample]")
-
         plt.axis('tight')
         plt.show()
-<<<<<<< HEAD
-
-
-        #proses finding peak
-        peakind = signal.find_peaks_cwt(p, np.arange(1,10))
-        print "peakind=",peakind #index masing-masing peak
-        print "p[peakind]=",p[peakind] #power masing-masing index peak
-        print "f[peakind]",f[peakind] #frekuensi masing-masing index peak
-        '''
-=======
         
         
->>>>>>> f847fef1e8ce219942916e61c601ccee15efa76f
         fval = []
         for i in range(len(f)-1):
             if f[i]!=f[i+1]:
@@ -125,10 +113,6 @@ class AudioFile:
 
 
 # Usage example for pyaudio
-<<<<<<< HEAD
-a = AudioFile("Ginada_Emaneman_WeDarling.wav")
-=======
 a = AudioFile("NewData/dog_bark4.wav")
->>>>>>> f847fef1e8ce219942916e61c601ccee15efa76f
 a.play()
 a.close()
