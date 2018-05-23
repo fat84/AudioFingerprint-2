@@ -16,11 +16,13 @@ class AudioFile:
         self.p = pyaudio.PyAudio()
         self.stream = self.p.open(
             format = self.p.get_format_from_width(self.wf.getsampwidth()),
-            channels = self.wf.getnchannels(),
+            channels = 1,
+            
             rate = self.wf.getframerate(),
             output = True
         )
         self.rates, self.datas = wavfile.read(file)
+        print self.wf.getnchannels()
 
     def play(self):
         """ Play entire file """
@@ -32,7 +34,7 @@ class AudioFile:
         #proses Hamming Window
         A = fft(self.datas, chunk*2) / 25.5
         mag = np.abs(fftshift(A))
-        M = 64
+        M = 200
         N = len(self.datas)
         hN = N/2     
         hM = M/2
@@ -107,7 +109,7 @@ class AudioFile:
         time = np.arange(N) / float(fs)
         mod = 500*np.cos(2*np.pi*0.25*time)
         carrier = amp * np.sin(2*np.pi*3e3*time + mod)
-        x = carrier
+        x = self.datas.sum(axis=1) / 2 
         f, t, Zxx = signal.stft(x, fs, nperseg=1000)
         plt.pcolormesh(t, f, np.abs(Zxx), vmin=0, vmax=amp)
         plt.title('STFT Magnitude')
@@ -151,6 +153,6 @@ class AudioFile:
     	return ploc
     
 # Usage example for pyaudio
-a = AudioFile("NewData/dog_bark4.wav")
+a = AudioFile("NewData/Lingga_Vokal_A_Ndang_01.wav")
 a.play()
 a.close()
