@@ -47,7 +47,7 @@ def go():
 
 
 #fungsi untuk play music pada folder destination
-def play_music(wav_name,i):
+def play_music(wav_name):
 	winsound.PlaySound("destination/"+wav_name,winsound.SND_FILENAME|winsound.SND_ASYNC)
 
 #fungsi untuk stop music pada folder destination

@@ -6,6 +6,10 @@ import scipy.io.wavfile as wavfile
 import pylab as pl
 from scipy import signal
 from numpy.fft import fft, fftshift
+import os, sys, math, copy
+from scipy.signal import get_window
+sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)),'Library/'))
+import stft
 
 class AudioFile:
     global chunk
@@ -16,13 +20,11 @@ class AudioFile:
         self.p = pyaudio.PyAudio()
         self.stream = self.p.open(
             format = self.p.get_format_from_width(self.wf.getsampwidth()),
-            channels = 1,
-            
+            channels = self.wf.getnchannels(),
             rate = self.wf.getframerate(),
             output = True
         )
         self.rates, self.datas = wavfile.read(file)
-        print self.wf.getnchannels()
 
     def play(self):
         """ Play entire file """
@@ -34,7 +36,7 @@ class AudioFile:
         #proses Hamming Window
         A = fft(self.datas, chunk*2) / 25.5
         mag = np.abs(fftshift(A))
-        M = 200
+        M = 64
         N = len(self.datas)
         hN = N/2     
         hM = M/2
@@ -48,6 +50,7 @@ class AudioFile:
         plt.axis('tight')
         plt.show()
         
+        '''
         #hamming window 2
         fftbuffer = np.zeros(N)
         mX1 = np.zeros(N)
@@ -61,6 +64,7 @@ class AudioFile:
         plt.axis([-hN,hN,-60,0])
         plt.tight_layout()
         plt.show()
+        '''
         
         #save data to file
         file = open("Text File/signal_data.txt","w")
@@ -103,19 +107,73 @@ class AudioFile:
         file.close()
         
         #proses STFT scipy
+        INT16_FAC = (2**15)-1
+        INT32_FAC = (2**31)-1
+        INT64_FAC = (2**63)-1
+        norm_fact = {'int16':INT16_FAC, 'int32':INT32_FAC, 'int64':INT64_FAC,'float32':1.0,'float64':1.0}
+        H = chunk/2 #bisa di set manual'
+        x = self.datas
+        x = np.float32(x)/norm_fact[x.dtype.name]
         fs = self.rates
-        N = len(self.datas)
-        amp = 2 * np.sqrt(2)
-        time = np.arange(N) / float(fs)
-        mod = 500*np.cos(2*np.pi*0.25*time)
-        carrier = amp * np.sin(2*np.pi*3e3*time + mod)
-        x = self.datas.sum(axis=1) / 2 
-        f, t, Zxx = signal.stft(x, fs, nperseg=1000)
-        plt.pcolormesh(t, f, np.abs(Zxx), vmin=0, vmax=amp)
-        plt.title('STFT Magnitude')
-        plt.ylabel('Frequency [Hz]')
-        plt.xlabel('Time [sec]')
-        plt.show()
+        w = get_window('hamming',chunk)#'''bisa di set'''
+        mX, pX = stft.stftAnal(x, fs, w, chunk, H)
+        y = stft.stftSynth(mX, pX, M, H)
+        #file = open("Text File/STFT Frequencies.txt","w")
+        #i = 0
+        #j = 0
+        #for itemI in mX:
+         #   i+=1
+          #  for itemJ in mX[]
+        plt.figure(figsize=(12, 9))
+        maxplotfreq = 5000.0
+        
+        plt.subplot(4,1,1)
+        plt.plot(np.arange(x.size)/float(fs), x)
+        plt.axis([0, x.size/float(fs), min(x), max(x)])
+        plt.ylabel('amplitude')
+        plt.xlabel('time (sec)')
+        plt.title('input sound: x')
+        
+        plt.subplot(4,1,2)
+        numFrames = int(mX[:,0].size)
+        frmTime = H*np.arange(numFrames)/float(fs)             
+        binFreq = fs*np.arange(chunk*maxplotfreq/fs)/chunk
+        plt.pcolormesh(frmTime, binFreq, np.transpose(mX[:,:int(chunk*maxplotfreq/fs+1)]))
+        plt.xlabel('time (sec)')
+        plt.ylabel('frequency (Hz)')
+        plt.title('magnitude spectrogram')
+        plt.autoscale(tight=True)
+        print binFreq
+        
+        plt.subplot(4,1,3)
+        numFrames = int(pX[:,0].size)
+        frmTime = H*np.arange(numFrames)/float(fs)                             
+        binFreq = fs*np.arange(chunk*maxplotfreq/fs)/chunk                       
+        plt.pcolormesh(frmTime, binFreq, np.transpose(np.diff(pX[:,:int(chunk*maxplotfreq/fs+1)],axis=1)))
+        plt.xlabel('time (sec)')
+        plt.ylabel('frequency (Hz)')
+        plt.title('phase spectrogram (derivative)')
+        plt.autoscale(tight=True)
+        
+        plt.subplot(4,1,4)
+        plt.plot(np.arange(y.size)/float(fs), y)
+        plt.axis([0, y.size/float(fs), min(y), max(y)])
+        plt.ylabel('amplitude')
+        plt.xlabel('time (sec)')
+        plt.title('output sound: y')
+        
+        plt.tight_layout()
+        plt.show(block=False)
+        
+        pl.plot(mX[50,:])
+        pl.show()
+        
+        pl.plot(pX[50,:])
+        pl.show()
+        
+        
+        
+        #print mX.shape
         #proses finding peak
         #execfile("find_peak_cwt.py")
 
@@ -153,6 +211,6 @@ class AudioFile:
     	return ploc
     
 # Usage example for pyaudio
-a = AudioFile("NewData/Lingga_Vokal_A_Ndang_01.wav")
+a = AudioFile("NewData/")
 a.play()
 a.close()
