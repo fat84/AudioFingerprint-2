@@ -10,6 +10,7 @@ import os, sys, math, copy
 from scipy.signal import get_window
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)),'Library/'))
 import stft
+import peakdetect
 
 class AudioFile:
     global chunk
@@ -97,27 +98,25 @@ class AudioFile:
         pl.xlabel("Frequency(Hz)")
         pl.ylabel("Power(dB)")
         pl.show()
-        file = open("Text File/peaklocation.txt","w")
-        i = 0
-        for item in self.peakDetection(p, 7):
-            i+=1
-            file.write("%s) " % str(i))
-            file.write("%s\t" % item)
-            file.write("%s\n" % p[item])
-        file.close()
         
         #proses STFT scipy
         INT16_FAC = (2**15)-1
         INT32_FAC = (2**31)-1
         INT64_FAC = (2**63)-1
         norm_fact = {'int16':INT16_FAC, 'int32':INT32_FAC, 'int64':INT64_FAC,'float32':1.0,'float64':1.0}
-        H = chunk/2 #bisa di set manual'
+        N = 2048
+        H = N/2 #bisa di set manual'
         x = self.datas
         x = np.float32(x)/norm_fact[x.dtype.name]
         fs = self.rates
-        w = get_window('hamming',chunk)#'''bisa di set'''
-        mX, pX = stft.stftAnal(x, fs, w, chunk, H)
+        M = 501     #'''bisa di set'''
+        w = get_window('hamming',M)
+        mX, pX = stft.stftAnal(x, fs, w, N, H)
         y = stft.stftSynth(mX, pX, M, H)
+        
+        file = open("Text File/mX.txt","w")
+        file.write("%s" % mX)
+        file.close()
         #file = open("Text File/STFT Frequencies.txt","w")
         #i = 0
         #j = 0
@@ -125,7 +124,7 @@ class AudioFile:
          #   i+=1
           #  for itemJ in mX[]
         plt.figure(figsize=(12, 9))
-        maxplotfreq = 5000.0
+        maxplotfreq = fs*H #5000.0
         
         plt.subplot(4,1,1)
         plt.plot(np.arange(x.size)/float(fs), x)
@@ -136,20 +135,24 @@ class AudioFile:
         
         plt.subplot(4,1,2)
         numFrames = int(mX[:,0].size)
-        frmTime = H*np.arange(numFrames)/float(fs)             
-        binFreq = fs*np.arange(chunk*maxplotfreq/fs)/chunk
-        plt.pcolormesh(frmTime, binFreq, np.transpose(mX[:,:int(chunk*maxplotfreq/fs+1)]))
+        frmTime = H*np.arange(numFrames)/float(fs)
+        binFreq = fs*np.arange(N*maxplotfreq/fs)/N
+        plt.pcolormesh(frmTime, binFreq, np.transpose(mX[:,:int(N*maxplotfreq/fs+1)]))
         plt.xlabel('time (sec)')
         plt.ylabel('frequency (Hz)')
         plt.title('magnitude spectrogram')
         plt.autoscale(tight=True)
-        print binFreq
+        
+        file = open("Text File/STFT frequencies.txt","w")
+        for item in binFreq:
+            file.write("%s\n" % item)
+        file.close()
         
         plt.subplot(4,1,3)
         numFrames = int(pX[:,0].size)
-        frmTime = H*np.arange(numFrames)/float(fs)                             
-        binFreq = fs*np.arange(chunk*maxplotfreq/fs)/chunk                       
-        plt.pcolormesh(frmTime, binFreq, np.transpose(np.diff(pX[:,:int(chunk*maxplotfreq/fs+1)],axis=1)))
+        frmTime = H*np.arange(numFrames)/float(fs)
+        binFreq = fs*np.arange(N*maxplotfreq/fs)/N
+        plt.pcolormesh(frmTime, binFreq, np.transpose(np.diff(pX[:,:int(N*maxplotfreq/fs+1)],axis=1)))
         plt.xlabel('time (sec)')
         plt.ylabel('frequency (Hz)')
         plt.title('phase spectrogram (derivative)')
@@ -165,16 +168,50 @@ class AudioFile:
         plt.tight_layout()
         plt.show(block=False)
         
-        pl.plot(mX[50,:])
+        pl.plot(mX[-10,:])
+        pl.xlabel('Index')
+        pl.ylabel('Value')
         pl.show()
         
-        pl.plot(pX[50,:])
+        pl.plot(pX[-10,:])
+        pl.xlabel('Index')
+        pl.ylabel('Value')
         pl.show()
         
-        
-        
-        #print mX.shape
+        print mX.shape
         #proses finding peak
+        
+        treshold = -20
+        peak_loc = peakdetect.peakDetection(mX,treshold)
+        print len(peak_loc)
+        file = open("Text File/peak_frequencies_2.txt","w")
+        for item in peak_loc:
+            file.write("%s\n" % item)
+        file.close()
+        
+        file = open("Text File/frequency peak.txt","w")
+        for item in peak_loc:
+            file.write("%s " % item)
+            for i in range(len(mX[item])):
+                file.write("%s " % mX[item,i])
+            file.write("\n\n")
+        file.close()
+        
+        pmag = mX[peak_loc]
+        freqaxis = fs*np.arange(N/2)/float(N)
+        plt.plot(freqaxis,mX[5,:-1])
+        pl.xlabel("Frequency")
+        pl.ylabel("Magnitude")
+        pl.show()
+        
+        print pmag.shape
+        print peak_loc.shape
+        
+        pl.plot(fs * peak_loc/ float(N), pmag)
+        pl.xlabel("Frequency")
+        pl.ylabel("Magnitude")
+        pl.show()
+        
         #execfile("find_peak_cwt.py")
 
         '''
@@ -201,16 +238,8 @@ class AudioFile:
         """ Graceful shutdown """ 
         self.stream.close()
         self.p.terminate()
-
-    def peakDetection(self, mX, t):
-    	thresh = np.where(mX[1:-1]>t, mX[1:-1], 0);             # locations above threshold
-    	next_minor = np.where(mX[1:-1]>mX[2:], mX[1:-1], 0)     # locations higher than the next one
-    	prev_minor = np.where(mX[1:-1]>mX[:-2], mX[1:-1], 0)    # locations higher than the previous one
-    	ploc = thresh * next_minor * prev_minor                 # locations fulfilling the three criteria
-    	ploc = ploc.nonzero()[0] + 1                            # add 1 to compensate for previous steps
-    	return ploc
     
 # Usage example for pyaudio
-a = AudioFile("NewData/")
+a = AudioFile("piano.wav")
 a.play()
 a.close()
