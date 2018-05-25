@@ -4,9 +4,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy.io.wavfile as wavfile
 import pylab as pl
-from scipy import signal
 from numpy.fft import fft, fftshift
-import os, sys, math, copy
+import os, sys
 from scipy.signal import get_window
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)),'Library/'))
 import stft
@@ -44,6 +43,7 @@ class AudioFile:
         freq = np.linspace(-hN, hN, len(A))
         response = 20 * np.log10(mag)
         response = np.clip(response, -100, 100)
+        
         plt.plot(freq, response)
         plt.title("Frequency response of Hamming window")
         plt.ylabel("Magnitude [dB]")
@@ -51,21 +51,6 @@ class AudioFile:
         plt.axis('tight')
         plt.show()
         
-        '''
-        #hamming window 2
-        fftbuffer = np.zeros(N)
-        mX1 = np.zeros(N)
-        fftbuffer[hN-hM:hN+hM] = np.hamming(M)
-        X = fft(fftbuffer)
-        #f, t, X = signal.stft(fftbuffer, self.rates, nperseg=1000)
-        mX = 20*np.log10(abs(X))
-        mX1[:hN] = mX[hN:]
-        mX1[N-hN:] = mX[:hN]
-        plt.plot(np.arange(-hN, hN), mX1-max(mX), 'r', lw=1.5)
-        plt.axis([-hN,hN,-60,0])
-        plt.tight_layout()
-        plt.show()
-        '''
         
         #save data to file
         file = open("Text File/signal_data.txt","w")
@@ -93,6 +78,7 @@ class AudioFile:
             i+=1
         file.close()
         #frequency domain
+        
         pl.plot(f, p)
         plt.title("Wave-Frequency Domain (FFT)")
         pl.xlabel("Frequency(Hz)")
@@ -105,17 +91,20 @@ class AudioFile:
         INT64_FAC = (2**63)-1
         norm_fact = {'int16':INT16_FAC, 'int32':INT32_FAC, 'int64':INT64_FAC,'float32':1.0,'float64':1.0}
         N = 2048
-        H = N/2 #bisa di set manual'
+        M = 501     #'''bisa di set'''
+        H = M/2     #bisa di set manual'
         x = self.datas
         x = np.float32(x)/norm_fact[x.dtype.name]
         fs = self.rates
-        M = 501     #'''bisa di set'''
         w = get_window('hamming',M)
+        
         mX, pX = stft.stftAnal(x, fs, w, N, H)
         y = stft.stftSynth(mX, pX, M, H)
-        
         file = open("Text File/mX.txt","w")
-        file.write("%s" % mX)
+        for j in range(len(mX)):
+            for item in mX[j]:
+                file.write("%s " % item)
+            file.write("\n\n")
         file.close()
         #file = open("Text File/STFT Frequencies.txt","w")
         #i = 0
@@ -123,8 +112,10 @@ class AudioFile:
         #for itemI in mX:
          #   i+=1
           #  for itemJ in mX[]
+        
+        
         plt.figure(figsize=(12, 9))
-        maxplotfreq = fs*H #5000.0
+        maxplotfreq = 5000.0
         
         plt.subplot(4,1,1)
         plt.plot(np.arange(x.size)/float(fs), x)
@@ -168,28 +159,37 @@ class AudioFile:
         plt.tight_layout()
         plt.show(block=False)
         
-        pl.plot(mX[-10,:])
-        pl.xlabel('Index')
-        pl.ylabel('Value')
-        pl.show()
         
-        pl.plot(pX[-10,:])
-        pl.xlabel('Index')
-        pl.ylabel('Value')
-        pl.show()
-        
-        print mX.shape
+        #print mX.shape
         #proses finding peak
+        temp = []
+        for i in range(mX.shape[0]):
+            temp.append(min(mX[i]))
+        minimum = min(temp)
+        temp = []
+        for i in range(mX.shape[0]):
+            temp.append(max(mX[i]))
+        maximum = max(temp)
+        t = 0.8
+        treshold = (minimum - maximum)*(1-t)
+        print "treshold =",treshold
+        ploc = peakdetect.peakDetection(mX,treshold)
+        peak_loc = []
+        for i in range(len(ploc)-1):
+            if ploc[i] != ploc[i+1]:
+                peak_loc.append(ploc[i])
+        peak_loc.append(ploc[-1])
+        peak_loc = np.array(peak_loc)
+        #print "ploc =",ploc
+        #print "peak location =",peak_loc
         
-        treshold = -20
-        peak_loc = peakdetect.peakDetection(mX,treshold)
-        print len(peak_loc)
-        file = open("Text File/peak_frequencies_2.txt","w")
+        #print len(peak_loc)
+        file = open("Text File/peaks location.txt","w")
         for item in peak_loc:
             file.write("%s\n" % item)
         file.close()
         
-        file = open("Text File/frequency peak.txt","w")
+        file = open("Text File/peaks magnitude.txt","w")
         for item in peak_loc:
             file.write("%s " % item)
             for i in range(len(mX[item])):
@@ -198,14 +198,33 @@ class AudioFile:
         file.close()
         
         pmag = mX[peak_loc]
+        
+        pl.plot(mX[-10,:])
+        pl.xlabel('Index')
+        pl.ylabel('Value')
+        pl.show()
+        '''
+        plt.plot(pX[-10,:])
+        pl.xlabel('Index')
+        pl.ylabel('Value')
+        pl.show()
+        '''
+        
         freqaxis = fs*np.arange(N/2)/float(N)
-        plt.plot(freqaxis,mX[5,:-1])
+        plt.plot(freqaxis,mX[peak_loc[0],:-1])
         pl.xlabel("Frequency")
         pl.ylabel("Magnitude")
         pl.show()
         
-        print pmag.shape
-        print peak_loc.shape
+        print "freqaxis shape =",freqaxis.shape
+        print "mX peak shape =",mX[peak_loc].shape
+        
+        file = open("Text File/peak frequencies.txt","w")
+        file.write("Frequency\tMagnitude\n")
+        for item in peak_loc:
+            file.write("%s\t" % freqaxis[item])
+            file.write("%s\n" % mX[peak_loc[0],item])
+        file.close()
         
         pl.plot(fs * peak_loc/ float(N), pmag)
         pl.xlabel("Frequency")
