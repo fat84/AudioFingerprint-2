@@ -124,7 +124,7 @@ class AudioFile:
          #   i+=1
           #  for itemJ in mX[]
         plt.figure(figsize=(12, 9))
-        maxplotfreq = fs*H #5000.0
+        maxplotfreq = 5000.0
         
         plt.subplot(4,1,1)
         plt.plot(np.arange(x.size)/float(fs), x)
@@ -240,6 +240,6 @@ class AudioFile:
         self.p.terminate()
     
 # Usage example for pyaudio
-a = AudioFile("piano.wav")
+a = AudioFile("NewData/flute-A4.wav")
 a.play()
 a.close()
