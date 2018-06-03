@@ -259,6 +259,6 @@ class AudioFile:
         self.p.terminate()
     
 # Usage example for pyaudio
-a = AudioFile("NewData/flute-A4.wav")
+a = AudioFile("NewData/piano.wav")
 a.play()
 a.close()

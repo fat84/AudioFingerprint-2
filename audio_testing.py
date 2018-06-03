@@ -16,12 +16,11 @@ from scipy.signal import get_window
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)),'Library/'))
 import stft
 import peakdetect
-import excel
 
 #path to training data
-source   = "development_set/"   
-modelpath = "speaker_models/"
-test_file = "development_set_test.txt"        
+source   = "pendahuluan_set/"   
+modelpath = "pendahuluan_models/"
+test_file = "pendahuluan_set_test.txt"        
 file_paths = open(test_file,'r')
 
 gmm_files = [os.path.join(modelpath,fname) for fname in os.listdir(modelpath) if fname.endswith('.gmm')]
@@ -77,4 +76,5 @@ for path in file_paths:
     print "score =",log_likelihood
     print "highest score =",max(log_likelihood)
     print "\tdetected as - ", speakers[winner]
+    print "\n"
     time.sleep(1.0)

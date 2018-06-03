@@ -1,0 +1,11 @@
+Ndeng-2018\wav\Ndeng_01.wav
+Ndeng-2018\wav\Ndeng_02.wav
+Ndeng-2018\wav\Ndeng_06.wav
+Ndeng-2018\wav\Ndeng_07.wav
+Ndeng-2018\wav\Ndeng_12.wav
+Ndong-2018\wav\Ndong_01.wav
+Ndong-2018\wav\Ndong_02.wav
+Ndong-2018\wav\Ndong_03.wav
+Ndong-2018\wav\Ndong_06.wav
+Ndong-2018\wav\Ndong_07.wav
+
