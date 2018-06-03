@@ -11,12 +11,25 @@ sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)),'Librar
 import stft
 import peakdetect
 
+INT16_FAC = (2**15)-1
+INT32_FAC = (2**31)-1
+INT64_FAC = (2**63)-1
+norm_fact = {'int16':INT16_FAC, 'int32':INT32_FAC, 'int64':INT64_FAC,'float32':1.0,'float64':1.0}
 class AudioFile:
     global chunk
     chunk = 1024
     def __init__(self, file):
         """ Init audio stream """ 
-        self.wf = wave.open(file, 'rb')
+        self.rates, self.datas = wavfile.read(file)
+        print self.datas
+        noise = np.random.normal(0,10,self.datas.shape)
+        i = 0
+        for f in noise:
+            self.datas[i] += f
+            i += 1
+        print self.datas
+        wavfile.write("piano_n.wav",self.rates,self.datas)
+        self.wf = wave.open("piano_n.wav", 'rb')
         self.p = pyaudio.PyAudio()
         self.stream = self.p.open(
             format = self.p.get_format_from_width(self.wf.getsampwidth()),
@@ -24,7 +37,6 @@ class AudioFile:
             rate = self.wf.getframerate(),
             output = True
         )
-        self.rates, self.datas = wavfile.read(file)
 
     def play(self):
         """ Play entire file """
@@ -85,11 +97,60 @@ class AudioFile:
         pl.ylabel("Power(dB)")
         pl.show()
         
-        #proses STFT scipy
-        INT16_FAC = (2**15)-1
-        INT32_FAC = (2**31)-1
-        INT64_FAC = (2**63)-1
-        norm_fact = {'int16':INT16_FAC, 'int32':INT32_FAC, 'int64':INT64_FAC,'float32':1.0,'float64':1.0}
+        #Framing
+        framerate = 1000                            #menentukan jumlah frame
+        frame = round(len(self.datas)/framerate)    #mengukur banyak data/frame
+        hop = 5                                     #jumlah frame yang diperiksa
+        overlap = 50                                #lompatan frame
+        a = 0
+        while a < framerate:
+            f_data = self.datas[a*int(frame):(a+hop)*int(frame)]
+            f_time = np.arange(a*(f_data.size/hop),(a+hop)*(f_data.size/hop))/float(self.rates)
+            title = "Frame",a/50+1,"Time-domain"
+            plt.title(title)
+            plt.xlabel("Time")
+            plt.ylabel("Amplitude")
+            plt.plot(f_time,f_data)
+            plt.show()
+            a += overlap
+            
+            
+        '''
+        for i in range(hop):
+            f_data = self.datas[i*int(frame):(i+1)*int(frame)]
+            f_time = np.arange(i*f_data.size,(i+1)*f_data.size)/float(self.rates)
+            plt.title("Frame Time-domain")
+            plt.xlabel("Time")
+            plt.ylabel("Amplitude")
+            plt.plot(f_time,f_data)
+            plt.show()
+        '''
+        
+        '''
+        f_time_sec = f_time[-1]
+        f_data = np.asarray(())
+        f_time = np.asarray(())
+        for i in range(int(frame)):
+            if len(f_data) == 0:
+                f_data = self.datas[i*framerate:(i+1)*framerate]
+                f_time = i*f_time_sec
+            else:
+                f_data = np.hstack((f_data,self.datas[i*framerate:(i+1)*framerate]))
+                f_time = np.hstack((f_time,i*f_time_sec))
+        if len(self.datas) % framerate > 0:
+            f_data = np.hstack((f_data,self.datas[(i+1)*framerate:]))
+            temp = (i+1)*f_time_sec
+            f_time = np.hstack((f_time,temp))
+        mod = len(self.datas) % framerate
+        antimod = len(self.datas) - mod
+        f_data = np.reshape(f_data[:antimod],(-1,framerate))
+        sisa_f_data = f_data[antimod:]
+        print f_data
+        print sisa_f_data
+        print f_time
+        '''
+        
+        #proses STFT
         N = 2048
         M = 501     #'''bisa di set'''
         H = M/2     #bisa di set manual'
