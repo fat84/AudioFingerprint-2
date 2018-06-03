@@ -85,7 +85,42 @@ class AudioFile:
         pl.ylabel("Power(dB)")
         pl.show()
         
-        #proses STFT scipy
+        #Framing
+        framerate = 1000
+        frame = round(len(self.datas)/framerate)
+        f_data = self.datas[3*int(frame):4*int(frame)]
+        f_time = np.arange(f_data.size)/float(self.rates)
+        
+        plt.title("Frame 1 Time-domain")
+        plt.xlabel("Time")
+        plt.ylabel("Amplitude")
+        plt.plot(f_time,f_data)
+        plt.show()
+        
+        f_time_sec = f_time[-1]
+        f_data = np.asarray(())
+        f_time = np.asarray(())
+        for i in range(int(frame)):
+            if len(f_data) == 0:
+                f_data = self.datas[i*framerate:(i+1)*framerate]
+                f_time = i*f_time_sec
+            else:
+                f_data = np.hstack((f_data,self.datas[i*framerate:(i+1)*framerate]))
+                f_time = np.hstack((f_time,i*f_time_sec))
+        if len(self.datas) % framerate > 0:
+            f_data = np.hstack((f_data,self.datas[(i+1)*framerate:]))
+            temp = (i+1)*f_time_sec
+            f_time = np.hstack((f_time,temp))
+        mod = len(self.datas) % framerate
+        antimod = len(self.datas) - mod
+        f_data = np.reshape(f_data[:antimod],(-1,framerate))
+        sisa_f_data = f_data[antimod:]
+        print f_data
+        print sisa_f_data
+        print f_time
+        
+        
+        #proses STFT
         INT16_FAC = (2**15)-1
         INT32_FAC = (2**31)-1
         INT64_FAC = (2**63)-1
@@ -259,6 +294,6 @@ class AudioFile:
         self.p.terminate()
     
 # Usage example for pyaudio
-a = AudioFile("piano.wav")
+a = AudioFile("NewData/flute-A4.wav")
 a.play()
 a.close()

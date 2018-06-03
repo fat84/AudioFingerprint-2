@@ -16,7 +16,6 @@ from scipy.signal import get_window
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)),'Library/'))
 import stft
 import peakdetect
-import excel
 
 #path to training data
 source   = "development_set/"   

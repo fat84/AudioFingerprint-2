@@ -73,7 +73,7 @@ for path in file_paths:
     if count == 5:    
         gmm = GMM(n_components = 16, n_iter = 200, covariance_type='diag',n_init = 3)
         gmm.fit(features)
-        
+        print gmm.fit(features)
         # dumping the trained gaussian model
         picklefile = path.split("-")[0]+".gmm"
         cPickle.dump(gmm,open(dest + picklefile,'w'))
