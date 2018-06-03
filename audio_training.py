@@ -35,7 +35,6 @@ for path in file_paths:
     # read the audio
     rates,audio = read(source + path)
     
-    # extract 40 dimensional MFCC & delta MFCC features
     INT16_FAC = (2**15)-1
     INT32_FAC = (2**31)-1
     INT64_FAC = (2**63)-1
@@ -44,16 +43,10 @@ for path in file_paths:
     w = get_window('hamming',501)
     H = 501/2
     mX, pX = stft.stftAnal(audio, rates, w, 2048, H)
-    temp = []
-    for i in range(mX.shape[0]):
-        temp.append(min(mX[i]))
-    minimum = min(temp)
-    temp = []
-    for i in range(mX.shape[0]):
-        temp.append(max(mX[i]))
-    maximum = max(temp)
+    minimum = np.min(mX)
+    maximum = np.max(mX)
     t = 0.5
-    treshold = (minimum - maximum)*(1-t)
+    treshold = (minimum + maximum)*(1-t)
     print "treshold =",treshold
     ploc = peakdetect.peakDetection(mX,treshold)
     peak_loc = []
@@ -70,10 +63,9 @@ for path in file_paths:
     else:
         features = np.vstack((features, vector))
     # when features of 5 files of speaker are concatenated, then do model training
-    if count == 5:    
+    if count == 5:
         gmm = GMM(n_components = 16, n_iter = 200, covariance_type='diag',n_init = 3)
         gmm.fit(features)
-        print gmm.fit(features)
         # dumping the trained gaussian model
         picklefile = path.split("-")[0]+".gmm"
         cPickle.dump(gmm,open(dest + picklefile,'w'))
