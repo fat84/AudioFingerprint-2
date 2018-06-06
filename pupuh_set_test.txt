@@ -1,2 +1,12 @@
-GinadaBasur_Slendro\wav\Ginada_Basur_Slendro_02_01.wav
-GinadaEmaneman_Pelog\wav\Ginada_Emaneman_Pelog_02_01.wav
+GinadaBasur-Slendro\wav\Ginada_Basur_Slendro_01_04.wav
+GinadaEmaneman-Pelog\wav\Ginada_Emaneman_Pelog_01_04.wav
+SemarandanaCilinaya-Slendro\wav\Semarandana_Cilinaya_Slendro_01_04.wav
+SemarandanaDasar-Pelog\wav\Semarandana_Dasar_Pelog_01_04.wav
+SinomDasar-Pelog\wav\Sinom_Dasar_Pelog_01_04.wav
+SinomLawe-Slendro\wav\Sinom_Lawe_Slendro_01_04.wav
+GinadaEmaneman-Pelog\wav\Ginada_Emaneman_Pelog_02_04.wav
+GinadaBasur-Slendro\wav\Ginada_Basur_Slendro_02_04.wav
+SemarandanaCilinaya-Slendro\wav\Semarandana_Cilinaya_Slendro_02_04.wav
+SemarandanaDasar-Pelog\wav\Semarandana_Dasar_Pelog_02_04.wav
+SinomDasar-Pelog\wav\Sinom_Dasar_Pelog_02_04.wav
+SinomLawe-Slendro\wav\Sinom_Lawe_Slendro_02_04.wav

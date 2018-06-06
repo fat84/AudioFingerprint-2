@@ -63,11 +63,8 @@ for path in file_paths:
     else:
         features = np.vstack((features, vector))
     # when features of 5 files of speaker are concatenated, then do model training
-<<<<<<< HEAD
-    if count == 3:    
-=======
-    if count == 5:
->>>>>>> e896e15bc3dd94152282d716e23af292adab546f
+
+    if count == 3:  
         gmm = GMM(n_components = 16, n_iter = 200, covariance_type='diag',n_init = 3)
         gmm.fit(features)
         # dumping the trained gaussian model

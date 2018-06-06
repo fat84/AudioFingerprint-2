@@ -98,12 +98,13 @@ class AudioFile:
         pl.show()
         
         #Framing
-        framerate = 1000                            #menentukan jumlah frame
+        framerate = self.rates
+        print framerate                            #menentukan jumlah frame
         frame = round(len(self.datas)/framerate)    #mengukur banyak data/frame
-        hop = 5                                     #jumlah frame yang diperiksa
-        overlap = 50                                #lompatan frame
+        hop = 10                                     #jumlah frame yang diperiksa
+        overlap = 5                                #lompatan frame
         a = 0
-        while a < framerate:
+        while a < frame:
             f_data = self.datas[a*int(frame):(a+hop)*int(frame)]
             f_time = np.arange(a*(f_data.size/hop),(a+hop)*(f_data.size/hop))/float(self.rates)
             title = "Frame",a/50+1,"Time-domain"
@@ -320,6 +321,6 @@ class AudioFile:
         self.p.terminate()
     
 # Usage example for pyaudio
-a = AudioFile("NewData/piano.wav")
+a = AudioFile("pupuh_set/GinadaEmaneman-Pelog/wav/Ginada_Emaneman_Pelog_01_04.wav")
 a.play()
 a.close()

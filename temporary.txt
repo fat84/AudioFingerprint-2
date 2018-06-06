@@ -1,0 +1,6 @@
+GinadaBasur-Slendro\wav\Ginada_Basur_Slendro_01_01.wav
+GinadaBasur-Slendro\wav\Ginada_Basur_Slendro_01_02.wav
+GinadaBasur-Slendro\wav\Ginada_Basur_Slendro_01_03.wav
+GinadaEmaneman-Pelog\wav\Ginada_Emaneman_Pelog_01_01.wav
+GinadaEmaneman-Pelog\wav\Ginada_Emaneman_Pelog_01_02.wav
+GinadaEmaneman-Pelog\wav\Ginada_Emaneman_Pelog_01_03.wav

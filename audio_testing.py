@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Sat May 26 00:57:15 2018
-
 @author: Grenceng
 """
 
@@ -16,20 +15,12 @@ from scipy.signal import get_window
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)),'Library/'))
 import stft
 import peakdetect
-<<<<<<< HEAD
-
-#path to training data
-source   = "pendahuluan_set/"   
-modelpath = "pendahuluan_models/"
-test_file = "pendahuluan_set_test.txt"        
-=======
 import csv
 
 #path to training data
-source   = "development_set/"
-modelpath = "speaker_models/"
-test_file = "development_set_test.txt"        
->>>>>>> e896e15bc3dd94152282d716e23af292adab546f
+source   = "pupuh_set/"
+modelpath = "pupuh_models/"
+test_file = "pupuh_set_test.txt"        
 file_paths = open(test_file,'r')
 
 gmm_files = [os.path.join(modelpath,fname) for fname in os.listdir(modelpath) if fname.endswith('.gmm')]
@@ -46,12 +37,13 @@ for path in file_paths:
     print path
     rates,audio = read(source + path)
     #Framing
-    framerate = 100                            #menentukan jumlah frame
+    framerate = rates 
+    print framerate                           #menentukan jumlah frame
     frame = round(len(audio)/framerate)    #mengukur banyak data/frame
-    hop = 5                                     #jumlah frame yang diperiksa
-    overlap = 10                                #lompatan frame
+    hop = 10                                   #jumlah frame yang diperiksa
+    overlap = 5                              #lompatan frame
     a = 0
-    while a < framerate:
+    while a < frame:
         f_data = audio[a*int(frame):(a+hop)*int(frame)]
         f_time = np.arange(a*(f_data.size/hop),(a+hop)*(f_data.size/hop))/float(rates)
         a += overlap
@@ -61,8 +53,8 @@ for path in file_paths:
         INT64_FAC = (2**63)-1
         norm_fact = {'int16':INT16_FAC, 'int32':INT32_FAC, 'int64':INT64_FAC,'float32':1.0,'float64':1.0}
         f_data = np.float32(f_data)/norm_fact[f_data.dtype.name]
-        w = get_window('hamming',501)
-        H = 501/2
+        w = get_window('hamming',1024)
+        H = 1024/2
         mX, pX = stft.stftAnal(f_data, rates, w, 2048, H)
         minimum = np.min(mX)
         maximum = np.max(mX)
@@ -76,6 +68,7 @@ for path in file_paths:
                 peak_loc.append(ploc[i])
         peak_loc.append(ploc[-1])
         peak_loc = np.array(peak_loc)
+        print peak_loc
         
         vector   = mX[peak_loc]
         
@@ -107,30 +100,12 @@ for path in file_paths:
         x.append(speakers[winner])
     time.sleep(2.0)
     
-<<<<<<< HEAD
-    vector   = mX[peak_loc]
-    
-    log_likelihood = np.zeros(len(models)) 
-    
-    for i in range(len(models)):
-        gmm    = models[i]  #checking with each model one by one
-        scores = np.array(gmm.score(vector))
-        log_likelihood[i] = scores.sum()
-    
-    winner = np.argmax(log_likelihood)
-    print "score =",log_likelihood
-    print "highest score =",max(log_likelihood)
-    print "\tdetected as - ", speakers[winner]
-    print "\n"
-    time.sleep(1.0)
-=======
 x = np.array(x)
 x = np.reshape(x,(-1,5))
-csvfile = open("csvData.xls","w")
+csvfile = open("csvDataSenandung.xls","w")
 for v in x:
     for z in v:
         csvfile.write('%s' % str(z))
         csvfile.write('\t')
     csvfile.write("\n")
 csvfile.close()
->>>>>>> e896e15bc3dd94152282d716e23af292adab546f
