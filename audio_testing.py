@@ -19,7 +19,7 @@ import csv
 
 #path to training data
 source   = "pupuh_set/"
-modelpath = "pupuh_models/"
+modelpath = "pupuh_models_03/"
 test_file = "pupuh_set_test.txt"        
 file_paths = open(test_file,'r')
 
@@ -31,8 +31,7 @@ speakers   = [fname.split("/")[-1].split(".gmm")[0] for fname in gmm_files]
 
 # Read the test directory and get the list of test audio files 
 x = []
-for path in file_paths:   
-    
+for path in file_paths:      
     path = path.strip()   
     print path
     rates,audio = read(source + path)
@@ -44,8 +43,10 @@ for path in file_paths:
     overlap = 5                              #lompatan frame
     a = 0
     while a < frame:
-        f_data = audio[a*int(frame):(a+hop)*int(frame)]
-        f_time = np.arange(a*(f_data.size/hop),(a+hop)*(f_data.size/hop))/float(rates)
+        f_data = audio[a*int(framerate):(a+hop)*int(framerate)]
+        f_time = np.arange(a*(f_data.size/hop),(a+hop)*(f_data.size/hop))/framerate
+        print np.min(f_time)
+        print np.max(f_time)
         a += overlap
     
         INT16_FAC = (2**15)-1
@@ -68,7 +69,7 @@ for path in file_paths:
                 peak_loc.append(ploc[i])
         peak_loc.append(ploc[-1])
         peak_loc = np.array(peak_loc)
-        print peak_loc
+        
         
         vector   = mX[peak_loc]
         
@@ -86,13 +87,17 @@ for path in file_paths:
         time.sleep(1.0)
         x.append(path)
         temp = str(np.min(f_time))
+        '''
         k = temp.split('.')
         l = k[0]+','+k[1]
-        x.append(l)
+        '''
+        x.append(temp)
         temp = str(np.max(f_time))
+        '''
         k = temp.split('.')
         l = k[0]+','+k[1]
-        x.append(l)
+        '''
+        x.append(temp)
         temp = str(np.max(log_likelihood))
         k = temp.split('.')
         l = k[0]+','+k[1]
@@ -102,7 +107,7 @@ for path in file_paths:
     
 x = np.array(x)
 x = np.reshape(x,(-1,5))
-csvfile = open("csvDataSenandung.xls","w")
+csvfile = open("csvDataSenandung04.xls","w")
 for v in x:
     for z in v:
         csvfile.write('%s' % str(z))

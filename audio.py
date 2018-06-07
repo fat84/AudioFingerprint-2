@@ -321,6 +321,6 @@ class AudioFile:
         self.p.terminate()
     
 # Usage example for pyaudio
-a = AudioFile("pupuh_set/GinadaEmaneman-Pelog/wav/Ginada_Emaneman_Pelog_01_04.wav")
+a = AudioFile("pupuh_set/GinadaBasur-Slendro/wav/Ginada_Basur_Slendro_01_04.wav")
 a.play()
 a.close()
