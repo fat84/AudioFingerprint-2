@@ -18,14 +18,15 @@ import stft
 import peakdetect
 
 #path to training data
-source   = "pupuh_set/"
+source   = "development_set/"
 
 #path where training speakers will be saved
-dest = "pupuh_models/"
-train_file = "pupuh_set_enroll.txt"
+dest = "speaker_models/"
+train_file = "development_set_enroll.txt"
 file_paths = open(train_file,'r')
 
 count = 1
+zzz = 0
 # Extracting features for each speaker (5 files per speakers)
 features = np.asarray(())
 for path in file_paths:
@@ -64,7 +65,7 @@ for path in file_paths:
         features = np.vstack((features, vector))
     # when features of 5 files of speaker are concatenated, then do model training
 
-    if count == 3:  
+    if count == 5:  
         gmm = GMM(n_components = 16, n_iter = 200, covariance_type='diag',n_init = 3)
         gmm.fit(features)
         # dumping the trained gaussian model
@@ -74,3 +75,6 @@ for path in file_paths:
         features = np.asarray(())
         count = 0
     count = count + 1
+    if zzz >= 14:
+        break
+    zzz +=1
