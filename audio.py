@@ -22,6 +22,7 @@ class AudioFile:
         """ Init audio stream """ 
         self.rates, self.datas = wavfile.read(file)
         print self.datas
+        '''
         noise = np.random.normal(0,10,self.datas.shape)
         i = 0
         for f in noise:
@@ -29,7 +30,8 @@ class AudioFile:
             i += 1
         print self.datas
         wavfile.write("piano_n.wav",self.rates,self.datas)
-        self.wf = wave.open("piano_n.wav", 'rb')
+        '''
+        self.wf = wave.open(file, 'rb')
         self.p = pyaudio.PyAudio()
         self.stream = self.p.open(
             format = self.p.get_format_from_width(self.wf.getsampwidth()),
@@ -321,6 +323,6 @@ class AudioFile:
         self.p.terminate()
     
 # Usage example for pyaudio
-a = AudioFile("pupuh_set/GinadaBasur-Slendro/wav/Ginada_Basur_Slendro_01_04.wav")
+a = AudioFile("NewData/piano.wav")
 a.play()
 a.close()
