@@ -29,9 +29,14 @@ class AudioFile:
             self.datas[i] += f
             i += 1
         print self.datas
+<<<<<<< HEAD
         wavfile.write("piano_n.wav",self.rates,self.datas)
         '''
         self.wf = wave.open(file, 'rb')
+=======
+        wavfile.write("noised.wav",self.rates,self.datas)
+        self.wf = wave.open("noised.wav", 'rb')
+>>>>>>> b1cacbe0181974e1cb0c36c113f10ed3b58fa50c
         self.p = pyaudio.PyAudio()
         self.stream = self.p.open(
             format = self.p.get_format_from_width(self.wf.getsampwidth()),
@@ -46,58 +51,12 @@ class AudioFile:
         while data != '':
             self.stream.write(data)
             data = self.wf.readframes(chunk)
-    
-        #proses Hamming Window
-        A = fft(self.datas, chunk*2) / 25.5
-        mag = np.abs(fftshift(A))
-        M = 64
-        N = len(self.datas)
-        hN = N/2     
-        hM = M/2
-        freq = np.linspace(-hN, hN, len(A))
-        response = 20 * np.log10(mag)
-        response = np.clip(response, -100, 100)
-        
-        plt.plot(freq, response)
-        plt.title("Frequency response of Hamming window")
-        plt.ylabel("Magnitude [dB]")
-        plt.xlabel("Normalized frequency [cycles per sample]")
-        plt.axis('tight')
-        plt.show()
-        
         
         #save data to file
         file = open("Text File/signal_data.txt","w")
         for item in self.datas:
             file.write("%s " % item)
         file.close()
-        
-        #time domain
-        plt.title("Wave-Time Domain")
-        plt.ylabel("Amplitude")
-        plt.xlabel("Time")
-        plt.plot(self.datas)
-        plt.show()
-        
-        #proses FFT
-        p = 20*np.log10(np.abs(np.fft.rfft(self.datas[:])))/5
-        f = np.linspace(0, self.rates, len(p))/2
-        #save FFT to file
-        file = open("Text File/fft_frequencies.txt","w")
-        i=0
-        for item in f:
-            file.write("%s) " % str(i+1))
-            file.write("%s\t:" % item)
-            file.write(" %s\n" % p[i])
-            i+=1
-        file.close()
-        #frequency domain
-        
-        pl.plot(f, p)
-        plt.title("Wave-Frequency Domain (FFT)")
-        pl.xlabel("Frequency(Hz)")
-        pl.ylabel("Power(dB)")
-        pl.show()
         
         #Framing
         framerate = self.rates
@@ -170,12 +129,6 @@ class AudioFile:
                 file.write("%s " % item)
             file.write("\n\n")
         file.close()
-        #file = open("Text File/STFT Frequencies.txt","w")
-        #i = 0
-        #j = 0
-        #for itemI in mX:
-         #   i+=1
-          #  for itemJ in mX[]
         
         
         plt.figure(figsize=(12, 9))
