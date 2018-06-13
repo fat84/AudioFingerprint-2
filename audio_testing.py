@@ -18,9 +18,9 @@ import peakdetect
 import pandas as pd
 
 #path to training data
-source   = "development_set/"
-modelpath = "speaker_models/"
-test_file = "development_set_test.txt"        
+source   = "pupuh_set/"
+modelpath = "pupuh_models_04/"
+test_file = "pupuh_set_test.txt"        
 file_paths = open(test_file,'r')
 
 gmm_files = [os.path.join(modelpath,fname) for fname in os.listdir(modelpath) if fname.endswith('.gmm')]
@@ -30,7 +30,7 @@ models    = [cPickle.load(open(fname,'r')) for fname in gmm_files]
 speakers   = [fname.split("/")[-1].split(".gmm")[0] for fname in gmm_files]
 
 # Read the test directory and get the list of test audio files 
-w_sizes = [256,512,1024,2048, 4096]
+w_sizes = [256,512,1024,2048,4096]
 ov_sizes = [0.25,0.5,0.75]
 tresholds = np.arange(1,10)*0.1
 paths = []
@@ -52,7 +52,7 @@ for ind_w in range(len(w_sizes)):
                 framerate = rates/10                       #menentukan jumlah frame
                 frame = round(len(audio)/framerate)         #mengukur banyak data/frame
                 n_frames = 10                                   #jumlah frame yang diperiksa
-                time_jump = 1                              #lompatan waktu (detik)
+                time_jump = 5                              #lompatan waktu (detik)
                 a = 0                                       #index penunjuk frame
                 while a < len(audio):
                     f_data = audio[int(a):int(a+n_frames*frame)]
