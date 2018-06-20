@@ -16,7 +16,8 @@ from scipy.signal import get_window
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)),'Library/'))
 import stft
 import peakdetect
-
+    
+    
 #path to training data
 source   = "development_set/"
 
@@ -26,7 +27,6 @@ train_file = "development_set_enroll.txt"
 file_paths = open(train_file,'r')
 
 count = 1
-zzz = 0
 # Extracting features for each speaker (5 files per speakers)
 features = np.asarray(())
 for path in file_paths:
@@ -75,6 +75,4 @@ for path in file_paths:
         features = np.asarray(())
         count = 0
     count = count + 1
-    if zzz >= 14:
-        break
-    zzz +=1
+    
