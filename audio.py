@@ -21,7 +21,6 @@ class AudioFile:
     def __init__(self, file):
         """ Init audio stream """ 
         self.rates, self.datas = wavfile.read(file)
-        print self.datas
         '''
         noise = np.random.normal(0,10,self.datas.shape)
         i = 0
@@ -29,14 +28,11 @@ class AudioFile:
             self.datas[i] += f
             i += 1
         print self.datas
-<<<<<<< HEAD
         wavfile.write("piano_n.wav",self.rates,self.datas)
         '''
         self.wf = wave.open(file, 'rb')
-=======
         wavfile.write("noised.wav",self.rates,self.datas)
         self.wf = wave.open("noised.wav", 'rb')
->>>>>>> b1cacbe0181974e1cb0c36c113f10ed3b58fa50c
         self.p = pyaudio.PyAudio()
         self.stream = self.p.open(
             format = self.p.get_format_from_width(self.wf.getsampwidth()),
@@ -57,7 +53,7 @@ class AudioFile:
         for item in self.datas:
             file.write("%s " % item)
         file.close()
-        
+        '''
         #Framing
         framerate = self.rates
         print framerate                            #menentukan jumlah frame
@@ -76,7 +72,7 @@ class AudioFile:
             plt.show()
             a += overlap
             
-            
+        '''
         '''
         for i in range(hop):
             f_data = self.datas[i*int(frame):(i+1)*int(frame)]
@@ -145,6 +141,7 @@ class AudioFile:
         numFrames = int(mX[:,0].size)
         frmTime = H*np.arange(numFrames)/float(fs)
         binFreq = fs*np.arange(N*maxplotfreq/fs)/N
+        print np.transpose(mX[:,:int(N*maxplotfreq/fs+1)]).shape
         plt.pcolormesh(frmTime, binFreq, np.transpose(mX[:,:int(N*maxplotfreq/fs+1)]))
         plt.xlabel('time (sec)')
         plt.ylabel('frequency (Hz)')

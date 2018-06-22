@@ -24,9 +24,12 @@ import scipy as scp
 from PIL import Image, ImageTk
 import matplotlib
 from matplotlib import pyplot as plt
+from matplotlib import style
+style.use('ggplot')
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 matplotlib.use('TkAgg')
+import cv2
 
 
 
@@ -50,12 +53,25 @@ class Main:
         models    = [cPickle.load(open(fname,'r')) for fname in gmm_files]
         speakers   = [fname.split("/")[-1].split(".gmm")[0] for fname in gmm_files]
         
+        
     #GUI
+    def resizeImg(self, path):
+        img = cv2.imread(path)
+        img = cv2.resize(img,(800,200))
+        cv2.imwrite(path, img)
+    
     def komponen(self):
-        self.opFrame = Frame(self.parent, bg="#4ae056")
+        self.resizeImg("kosong.png")
+        self.TimeDomImg = Image.open("kosong.png")
+        self.TimeDomImg = ImageTk.PhotoImage(self.TimeDomImg)
+        self.FreqDomImg = Image.open("kosong.png")
+        self.FreqDomImg = ImageTk.PhotoImage(self.FreqDomImg)
+        
+        
+        self.opFrame = Frame(self.parent, bg="#d7efea")
         self.opFrame.grid(row=0, column=0,sticky=N)
-        self.inputPupuhLbl = Label(self.opFrame, width=15, height=2, fg="black",
-                                   text="Input Pupuh")
+        self.inputPupuhLbl = Label(self.opFrame, fg="black", text="Input Pupuh",
+                                   bg="#d7efea")
         self.inputPupuhLbl.grid(row=0, column=0, padx=5, pady=4, sticky=W)
         self.browseBtn = Button(self.opFrame, text="Browse", command=self.browseWav,
                                 width=6, height=1, bg="#e5efd7")
@@ -76,13 +92,37 @@ class Main:
         self.peakTresholdEnt = Entry(self.opFrame, width=15, bd=2, textvariable=self.PTreshTxt)
         self.peakTresholdEnt.grid(row=1, column=3, padx=3, pady=3, sticky=W)
         self.PTreshTxt.set("Peak Treshold")
-        self.proccessEnt = Button(self.opFrame, width=10, text="Proccess", bg="#e5efd7",
+        self.proccessBtn = Button(self.opFrame, width=10, text="Proccess", bg="#e5efd7",
                                   command=self.proses)
-        self.proccessEnt.grid(row=2, column=3, padx=3, pady=3, sticky=W)
+        self.proccessBtn.grid(row=2, column=3, padx=3, pady=3, sticky=W)
         
         
         self.plotFrame = Frame(self.parent, bg="#4ae056")
         self.plotFrame.grid(row=1, column=0,sticky=N)
+        self.detAsLbl = Label(self.plotFrame, fg="black", text="Detected As",
+                              bg="#4ae056")
+        self.detAsLbl.grid(row=0, column=0, columnspan=4, pady=5)
+        self.resultLbl = Label(self.plotFrame, text="none", bg="#4ae056")
+        self.resultLbl.grid(row=1, column=0, columnspan=4, pady=3)
+        self.logLikeLbl = Label(self.plotFrame, fg="black", text="Log likelihood = ",
+                                bg="#4ae056")
+        self.logLikeLbl.grid(row=2,column=0,columnspan=2, padx=3, sticky=E)
+        self.scoreLbl = Label(self.plotFrame, width=20, bd=2, text="-", bg="#4ae056")
+        self.scoreLbl.grid(row=2, column=2, columnspan=2, sticky=W)
+        self.timeDomLbl = Label(self.plotFrame,fg="black", text="Time Domain",
+                                bg="#4ae056")
+        self.timeDomLbl.grid(row=3, column=0, pady=5, padx=4, sticky=W)
+        self.timeDomPlt = Label(self.plotFrame, width=800, height=200, 
+                                image=self.TimeDomImg, bg="#4ae056")
+        self.timeDomPlt.grid(row=4, column=0, columnspan=4, padx=5)
+        self.timeDomPlt.image = self.TimeDomImg
+        self.freqDomLbl = Label(self.plotFrame,fg="black", text="Frequency Domain",
+                                bg="#4ae056")
+        self.freqDomLbl.grid(row=5, column=0, pady=5, padx=4, sticky=W)
+        self.freqDomPlt = Label(self.plotFrame, width=800, height=200, 
+                                image=self.FreqDomImg, bg="#4ae056")
+        self.freqDomPlt.grid(row=6, column=0, columnspan=4, padx=5)
+        self.freqDomPlt.image = self.FreqDomImg
     
     def browseWav(self):
         self.path = tkFileDialog.askopenfilename()
@@ -94,52 +134,68 @@ class Main:
         if len(self.path) > 0:
             rates, audio = read(self.path)
             print "proses"
-            framerate = rates                      #menentukan jumlah frame
-            frame = round(len(audio)/framerate)         #mengukur banyak data/frame
-            n_frames = 10                                   #jumlah frame yang diperiksa
-            time_jump = 1                              #lompatan waktu (detik)
-            a = 0                                       #index penunjuk frame
-            c = []                                      #list conclusion
-            while a < len(audio):
-                f_data = audio[int(a):int(a+n_frames*framerate)]
-                f_time = np.arange(a,(a + framerate * n_frames))/float(framerate)
-                a += time_jump*rates
-                INT16_FAC = (2**15)-1
-                INT32_FAC = (2**31)-1
-                INT64_FAC = (2**63)-1
-                norm_fact = {'int16':INT16_FAC, 'int32':INT32_FAC, 'int64':INT64_FAC,'float32':1.0,'float64':1.0}
-                f_data = np.float32(f_data)/norm_fact[f_data.dtype.name]
-                w = get_window('hamming',int(self.WSizeTxt.get()))
-                H = int(float(self.WSizeTxt.get())*float(self.OvlSizeTxt.get()))
-                mX, pX = stft.stftAnal(f_data, rates, w, 2048, H)
-                minimum = np.min(mX)
-                maximum = np.max(mX)
-                t = float(self.PTreshTxt.get())
-                treshold = (minimum + maximum)*(1-t)
-                print "treshold =",treshold
-                ploc = peakdetect.peakDetection(mX,treshold)
-                print a,ploc.size
-                if ploc.size != 0:
-                    peak_loc = []
-                    for i in range(len(ploc)-1):
-                        if ploc[i] != ploc[i+1]:
-                            peak_loc.append(ploc[i])
-                    peak_loc.append(ploc[-1])
-                    peak_loc = np.array(peak_loc)
-                    #print peak_loc.size,"\n"
-                    vector   = mX[peak_loc]
-                    
-                    log_likelihood = np.zeros(len(models)) 
-                    
-                    for i in range(len(models)):
-                        gmm    = models[i]  #checking with each model one by one
-                        scores = np.array(gmm.score(vector))
-                        log_likelihood[i] = scores.sum()
-                    
-                    conclusion = np.argmax(log_likelihood)
-                    print conclusion
-                    c.append(speakers[conclusion])
-            print c
+            INT16_FAC = (2**15)-1
+            INT32_FAC = (2**31)-1
+            INT64_FAC = (2**63)-1
+            norm_fact = {'int16':INT16_FAC, 'int32':INT32_FAC, 'int64':INT64_FAC,'float32':1.0,'float64':1.0}
+            audio = np.float32(audio)/norm_fact[audio.dtype.name]
+            w = get_window('hamming',int(self.WSizeTxt.get()))
+            H = int(float(self.WSizeTxt.get())*float(self.OvlSizeTxt.get()))
+            mX, pX = stft.stftAnal(audio, rates, w, 2048, H)
+            minimum = np.min(mX)
+            maximum = np.max(mX)
+            t = float(self.PTreshTxt.get())
+            treshold = (minimum + maximum)*(1-t)
+            print "treshold =",treshold
+            ploc = peakdetect.peakDetection(mX,treshold)
+            if ploc.size != 0:
+                peak_loc = []
+                for i in range(len(ploc)-1):
+                    if ploc[i] != ploc[i+1]:
+                        peak_loc.append(ploc[i])
+                peak_loc.append(ploc[-1])
+                peak_loc = np.array(peak_loc)
+                #print peak_loc.size,"\n"
+                vector   = mX[peak_loc]
+                
+                log_likelihood = np.zeros(len(models)) 
+                
+                for i in range(len(models)):
+                    gmm    = models[i]  #checking with each model one by one
+                    scores = np.array(gmm.score(vector))
+                    log_likelihood[i] = scores.sum()
+                
+                winner = np.argmax(log_likelihood)
+            self.resultLbl.config(text=speakers[winner])
+            self.scoreLbl.config(text=np.max(log_likelihood))
+            
+            plt.figure(figsize=(12, 9))
+            plt.plot(np.arange(audio.size)/float(rates), audio)
+            plt.axis([0, audio.size/float(rates), min(audio), max(audio)])
+            plt.ylabel('amplitude')
+            plt.xlabel('time (sec)')
+            plt.autoscale(tight=True)
+            plt.savefig("Time Domain Testing.png")
+            self.resizeImg("Time Domain Testing.png")
+            self.TimeDomImg = Image.open("Time Domain Testing.png")
+            self.TimeDomImg = ImageTk.PhotoImage(self.TimeDomImg)
+            self.timeDomPlt.config(image=self.TimeDomImg, width=800, height=200)
+            self.timeDomPlt.image = self.TimeDomImg
+            maxplotfreq = rates/8.82                    #8.82 = maxplotfreq rate
+            N = 2048                                    #STFT rate
+            numFrames = int(mX[:,0].size)
+            frmTime = H*np.arange(numFrames)/float(rates)
+            binFreq = rates*np.arange(N*maxplotfreq/rates)/N
+            plt.pcolormesh(frmTime, binFreq, np.transpose(mX[:,:int(N*maxplotfreq/rates+1)]))
+            plt.xlabel('time (sec)')
+            plt.ylabel('frequency (Hz)')
+            plt.autoscale(tight=True)
+            plt.savefig("Frekuensi Domain Testing.png")
+            self.resizeImg("Frekuensi Domain Testing.png")
+            self.FreqDomImg = Image.open("Frekuensi Domain Testing.png")
+            self.FreqDomImg = ImageTk.PhotoImage(self.FreqDomImg)
+            self.freqDomPlt.config(image=self.FreqDomImg, width=800, height=200)
+            self.freqDomPlt.image = self.FreqDomImg
         else:
             print "belum ada pupuh diinput"
         
