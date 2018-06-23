@@ -43,7 +43,7 @@ class Main:
         global source, file_paths, models, speakers
         #path to training data
         source   = "development_set/"
-        modelpath = "speaker_models/"
+        modelpath = "pendahuluan_models/"
         test_file = "development_set_test.txt"    
         file_paths = open(test_file,'r')
         
@@ -135,16 +135,17 @@ class Main:
     def proses(self):
         if len(self.path) > 0:
             rates, audio = read(self.path)
-            noise = self.generateNoise(audio.size,50)
-            audio += noise
+            noise = self.generateNoise(audio.size,100)
+            #audio += noise
+            newAudio = audio + noise
             INT16_FAC = (2**15)-1
             INT32_FAC = (2**31)-1
             INT64_FAC = (2**63)-1
             norm_fact = {'int16':INT16_FAC, 'int32':INT32_FAC, 'int64':INT64_FAC,'float32':1.0,'float64':1.0}
-            audio = np.float32(audio)/norm_fact[audio.dtype.name]
+            newAudio = np.float32(newAudio)/norm_fact[newAudio.dtype.name]
             w = get_window('hamming',int(self.WSizeTxt.get()))
             H = int(float(self.WSizeTxt.get())*float(self.OvlSizeTxt.get()))
-            mX, pX = stft.stftAnal(audio, rates, w, 2048, H)
+            mX, pX = stft.stftAnal(newAudio, rates, w, 2048, H)
             minimum = np.min(mX)
             maximum = np.max(mX)
             t = float(self.PTreshTxt.get())
@@ -172,14 +173,14 @@ class Main:
             self.scoreLbl.config(text=np.max(log_likelihood))
             
             plt.figure(figsize=(12, 9))
-            plt.plot(np.arange(audio.size)/float(rates), audio)
-            plt.axis([0, audio.size/float(rates), min(audio), max(audio)])
+            plt.plot(np.arange(newAudio.size)/float(rates), newAudio)
+            plt.axis([0, newAudio.size/float(rates), min(newAudio), max(newAudio)])
             plt.ylabel('amplitude')
             plt.xlabel('time (sec)')
             plt.autoscale(tight=True)
-            plt.savefig("Time Domain Testing.png")
-            self.resizeImg("Time Domain Testing.png")
-            self.TimeDomImg = Image.open("Time Domain Testing.png")
+            plt.savefig("Time Domain Testing Noise.png")
+            self.resizeImg("Time Domain Testing Noise.png")
+            self.TimeDomImg = Image.open("Time Domain Testing Noise.png")
             self.TimeDomImg = ImageTk.PhotoImage(self.TimeDomImg)
             self.timeDomPlt.config(image=self.TimeDomImg, width=800, height=200)
             self.timeDomPlt.image = self.TimeDomImg
@@ -192,9 +193,9 @@ class Main:
             plt.xlabel('time (sec)')
             plt.ylabel('frequency (Hz)')
             plt.autoscale(tight=True)
-            plt.savefig("Frekuensi Domain Testing.png")
-            self.resizeImg("Frekuensi Domain Testing.png")
-            self.FreqDomImg = Image.open("Frekuensi Domain Testing.png")
+            plt.savefig("Frekuensi Domain Testing Noise.png")
+            self.resizeImg("Frekuensi Domain Testing Noise.png")
+            self.FreqDomImg = Image.open("Frekuensi Domain Testing Noise.png")
             self.FreqDomImg = ImageTk.PhotoImage(self.FreqDomImg)
             self.freqDomPlt.config(image=self.FreqDomImg, width=800, height=200)
             self.freqDomPlt.image = self.FreqDomImg

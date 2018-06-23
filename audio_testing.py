@@ -43,7 +43,7 @@ class Main:
         global source, file_paths, models, speakers
         #path to training data
         source   = "development_set/"
-        modelpath = "speaker_models/"
+        modelpath = "pendahuluan_models/"
         test_file = "development_set_test.txt"    
         file_paths = open(test_file,'r')
         
@@ -97,33 +97,42 @@ class Main:
         self.proccessBtn.grid(row=2, column=3, padx=3, pady=3, sticky=W)
         
         
-        self.plotFrame = Frame(self.parent, bg="#4ae056")
+        self.plotFrame = Frame(self.parent, bg="#d7efea")
         self.plotFrame.grid(row=1, column=0,sticky=N)
         self.detAsLbl = Label(self.plotFrame, fg="black", text="Detected As",
-                              bg="#4ae056")
+                              bg="#d7efea")
         self.detAsLbl.grid(row=0, column=0, columnspan=4, pady=5)
-        self.resultLbl = Label(self.plotFrame, text="none", bg="#4ae056")
+        self.resultLbl = Label(self.plotFrame, text="none", bg="#d7efea")
         self.resultLbl.grid(row=1, column=0, columnspan=4, pady=3)
         self.logLikeLbl = Label(self.plotFrame, fg="black", text="Log likelihood = ",
-                                bg="#4ae056")
+                                bg="#d7efea")
         self.logLikeLbl.grid(row=2,column=0,columnspan=2, padx=3, sticky=E)
-        self.scoreLbl = Label(self.plotFrame, width=20, bd=2, text="-", bg="#4ae056")
+        self.scoreLbl = Label(self.plotFrame, width=20, bd=2, text="-", bg="#d7efea")
         self.scoreLbl.grid(row=2, column=2, columnspan=2, sticky=W)
         self.timeDomLbl = Label(self.plotFrame,fg="black", text="Time Domain",
-                                bg="#4ae056")
+                                bg="#d7efea")
         self.timeDomLbl.grid(row=3, column=0, pady=5, padx=4, sticky=W)
         self.timeDomPlt = Label(self.plotFrame, width=800, height=200, 
                                 image=self.TimeDomImg, bg="#4ae056")
         self.timeDomPlt.grid(row=4, column=0, columnspan=4, padx=5)
         self.timeDomPlt.image = self.TimeDomImg
         self.freqDomLbl = Label(self.plotFrame,fg="black", text="Frequency Domain",
-                                bg="#4ae056")
+                                bg="#d7efea")
         self.freqDomLbl.grid(row=5, column=0, pady=5, padx=4, sticky=W)
         self.freqDomPlt = Label(self.plotFrame, width=800, height=200, 
                                 image=self.FreqDomImg, bg="#4ae056")
         self.freqDomPlt.grid(row=6, column=0, columnspan=4, padx=5)
         self.freqDomPlt.image = self.FreqDomImg
+        self.showPeakBtn = Button(self.plotFrame, width=10, text="Peak", bg="#e5efd7",
+                                  command=self.showPeak)
+        self.showPeakBtn.grid(row=7, column=1, columnspan=2, pady=5)
+        self.peakLbl = Label(self.plotFrame, fg="black", 
+                             text="click the Peak button to show peak location")
+        self.peakLbl.grid(row=8, column=0, columnspan=4, sticky=W)
     
+    def showPeak(self):
+        self.peakLbl.config(text=self.peakloc)
+        
     def browseWav(self):
         self.path = tkFileDialog.askopenfilename()
         if len(self.path) > 0:
@@ -168,6 +177,7 @@ class Main:
                 winner = np.argmax(log_likelihood)
             self.resultLbl.config(text=speakers[winner])
             self.scoreLbl.config(text=np.max(log_likelihood))
+            self.peakloc = peak_loc
             
             plt.figure(figsize=(12, 9))
             plt.plot(np.arange(audio.size)/float(rates), audio)
@@ -175,9 +185,9 @@ class Main:
             plt.ylabel('amplitude')
             plt.xlabel('time (sec)')
             plt.autoscale(tight=True)
-            plt.savefig("Time Domain Testing.png")
-            self.resizeImg("Time Domain Testing.png")
-            self.TimeDomImg = Image.open("Time Domain Testing.png")
+            plt.savefig("Time Domain Testing Clean.png")
+            self.resizeImg("Time Domain Testing Clean.png")
+            self.TimeDomImg = Image.open("Time Domain Testing Clean.png")
             self.TimeDomImg = ImageTk.PhotoImage(self.TimeDomImg)
             self.timeDomPlt.config(image=self.TimeDomImg, width=800, height=200)
             self.timeDomPlt.image = self.TimeDomImg
@@ -190,9 +200,9 @@ class Main:
             plt.xlabel('time (sec)')
             plt.ylabel('frequency (Hz)')
             plt.autoscale(tight=True)
-            plt.savefig("Frekuensi Domain Testing.png")
-            self.resizeImg("Frekuensi Domain Testing.png")
-            self.FreqDomImg = Image.open("Frekuensi Domain Testing.png")
+            plt.savefig("Frekuensi Domain Testing Clean.png")
+            self.resizeImg("Frekuensi Domain Testing Clean.png")
+            self.FreqDomImg = Image.open("Frekuensi Domain Testing Clean.png")
             self.FreqDomImg = ImageTk.PhotoImage(self.FreqDomImg)
             self.freqDomPlt.config(image=self.FreqDomImg, width=800, height=200)
             self.freqDomPlt.image = self.FreqDomImg
