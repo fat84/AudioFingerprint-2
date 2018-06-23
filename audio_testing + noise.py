@@ -132,6 +132,10 @@ class Main:
     
     def showPeak(self):
         self.peakLbl.config(text=self.peakloc)
+        peakfile = open("Peaks/peak.txt","w")
+        for e in self.peakloc:
+            peakfile.write("%s\n" % e)
+        peakfile.close()
     
     def browseWav(self):
         self.path = tkFileDialog.askopenfilename()
@@ -146,7 +150,9 @@ class Main:
             rates, audio = read(self.path)
             noise = self.generateNoise(audio.size,100)
             #audio += noise
+            print audio
             newAudio = audio + noise
+            print newAudio
             INT16_FAC = (2**15)-1
             INT32_FAC = (2**31)-1
             INT64_FAC = (2**63)-1
@@ -180,6 +186,7 @@ class Main:
                 winner = np.argmax(log_likelihood)
             self.resultLbl.config(text=speakers[winner])
             self.scoreLbl.config(text=np.max(log_likelihood))
+            self.peakloc = peak_loc
             
             plt.figure(figsize=(12, 9))
             plt.plot(np.arange(newAudio.size)/float(rates), newAudio)

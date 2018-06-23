@@ -132,6 +132,10 @@ class Main:
     
     def showPeak(self):
         self.peakLbl.config(text=self.peakloc)
+        peakfile = open("Peaks/peak.txt","w")
+        for e in self.peakloc:
+            peakfile.write("%s\n" % e)
+        peakfile.close()
         
     def browseWav(self):
         self.path = tkFileDialog.askopenfilename()
