@@ -123,6 +123,15 @@ class Main:
                                 image=self.FreqDomImg, bg="#4ae056")
         self.freqDomPlt.grid(row=6, column=0, columnspan=4, padx=5)
         self.freqDomPlt.image = self.FreqDomImg
+        self.showPeakBtn = Button(self.plotFrame, width=10, text="Peak", bg="#e5efd7",
+                                  command=self.showPeak)
+        self.showPeakBtn.grid(row=7, column=1, columnspan=2, pady=5)
+        self.peakLbl = Label(self.plotFrame, fg="black", 
+                             text="click the Peak button to show peak location")
+        self.peakLbl.grid(row=8, column=0, columnspan=4, sticky=W)
+    
+    def showPeak(self):
+        self.peakLbl.config(text=self.peakloc)
     
     def browseWav(self):
         self.path = tkFileDialog.askopenfilename()
