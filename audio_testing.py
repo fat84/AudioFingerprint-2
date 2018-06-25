@@ -42,9 +42,9 @@ class Main:
         self.path = ""
         global source, file_paths, models, speakers
         #path to training data
-        source   = "development_set/"
+        source   = "pendahuluan_set/"
         modelpath = "pendahuluan_models/"
-        test_file = "development_set_test.txt"    
+        test_file = "pendahuluan_set_test.txt"    
         file_paths = open(test_file,'r')
         
         gmm_files = [os.path.join(modelpath,fname) for fname in os.listdir(modelpath) if fname.endswith('.gmm')]
@@ -82,26 +82,26 @@ class Main:
         self.FnameTxt.set("Belum Ada Pupuh")
         self.WSizeTxt = StringVar()
         self.windowSizeEnt = Entry(self.opFrame, width=15, bd=2, textvariable=self.WSizeTxt)
-        self.windowSizeEnt.grid(row=1, column=0, padx=5, pady=3, sticky=W)
+        self.windowSizeEnt.grid(row=1, column=0, padx=5, sticky=W)
         self.WSizeTxt.set("Window Size")
         self.OvlSizeTxt = StringVar()
         self.overlapSizeEnt = Entry(self.opFrame, width=15, bd=2, textvariable=self.OvlSizeTxt)
-        self.overlapSizeEnt.grid(row=1, column=1, columnspan=2, padx=3, pady=3, sticky=W)
+        self.overlapSizeEnt.grid(row=1, column=1, columnspan=2, padx=3, sticky=W)
         self.OvlSizeTxt.set("Overlapping Size")
         self.PTreshTxt = StringVar()
         self.peakTresholdEnt = Entry(self.opFrame, width=15, bd=2, textvariable=self.PTreshTxt)
-        self.peakTresholdEnt.grid(row=1, column=3, padx=3, pady=3, sticky=W)
+        self.peakTresholdEnt.grid(row=1, column=3, padx=3, sticky=W)
         self.PTreshTxt.set("Peak Treshold")
         self.proccessBtn = Button(self.opFrame, width=10, text="Proccess", bg="#e5efd7",
                                   command=self.proses)
-        self.proccessBtn.grid(row=2, column=3, padx=3, pady=3, sticky=W)
+        self.proccessBtn.grid(row=2, column=3, padx=3, sticky=W)
         
         
         self.plotFrame = Frame(self.parent, bg="#d7efea")
         self.plotFrame.grid(row=1, column=0,sticky=N)
         self.detAsLbl = Label(self.plotFrame, fg="black", text="Detected As",
                               bg="#d7efea")
-        self.detAsLbl.grid(row=0, column=0, columnspan=4, pady=5)
+        self.detAsLbl.grid(row=0, column=0, columnspan=4, pady=2)
         self.resultLbl = Label(self.plotFrame, text="none", bg="#d7efea")
         self.resultLbl.grid(row=1, column=0, columnspan=4, pady=3)
         self.logLikeLbl = Label(self.plotFrame, fg="black", text="Log likelihood = ",
@@ -111,14 +111,14 @@ class Main:
         self.scoreLbl.grid(row=2, column=2, columnspan=2, sticky=W)
         self.timeDomLbl = Label(self.plotFrame,fg="black", text="Time Domain",
                                 bg="#d7efea")
-        self.timeDomLbl.grid(row=3, column=0, pady=5, padx=4, sticky=W)
+        self.timeDomLbl.grid(row=3, column=0, pady=3, padx=4, sticky=W)
         self.timeDomPlt = Label(self.plotFrame, width=800, height=200, 
                                 image=self.TimeDomImg, bg="#4ae056")
         self.timeDomPlt.grid(row=4, column=0, columnspan=4, padx=5)
         self.timeDomPlt.image = self.TimeDomImg
         self.freqDomLbl = Label(self.plotFrame,fg="black", text="Frequency Domain",
                                 bg="#d7efea")
-        self.freqDomLbl.grid(row=5, column=0, pady=5, padx=4, sticky=W)
+        self.freqDomLbl.grid(row=5, column=0, pady=3, padx=4, sticky=W)
         self.freqDomPlt = Label(self.plotFrame, width=800, height=200, 
                                 image=self.FreqDomImg, bg="#4ae056")
         self.freqDomPlt.grid(row=6, column=0, columnspan=4, padx=5)
@@ -129,6 +129,8 @@ class Main:
         self.peakLbl = Label(self.plotFrame, fg="black", 
                              text="click the Peak button to show peak location")
         self.peakLbl.grid(row=8, column=0, columnspan=4, sticky=W)
+        self.proTimeLbl = Label(self.plotFrame, fg="black", text="")
+        self.proTimeLbl.grid(row=9, column=0, columnspan=4, sticky=W)
     
     def showPeak(self):
         self.peakLbl.config(text=self.peakloc)
@@ -145,8 +147,8 @@ class Main:
     
     def proses(self):
         if len(self.path) > 0:
+            start_time = time.time()
             rates, audio = read(self.path)
-            print "proses"
             INT16_FAC = (2**15)-1
             INT32_FAC = (2**31)-1
             INT64_FAC = (2**63)-1
@@ -159,7 +161,6 @@ class Main:
             maximum = np.max(mX)
             t = float(self.PTreshTxt.get())
             treshold = (minimum + maximum)*(1-t)
-            print "treshold =",treshold
             ploc = peakdetect.peakDetection(mX,treshold)
             if ploc.size != 0:
                 peak_loc = []
@@ -210,6 +211,9 @@ class Main:
             self.FreqDomImg = ImageTk.PhotoImage(self.FreqDomImg)
             self.freqDomPlt.config(image=self.FreqDomImg, width=800, height=200)
             self.freqDomPlt.image = self.FreqDomImg
+            end_time = time.time() - start_time
+            self.proTimeLbl.config(text="Identifikasi berakhir dengan total waktu %s detik" 
+                                   % end_time)
         else:
             print "belum ada pupuh diinput"
         
