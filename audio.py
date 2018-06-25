@@ -112,6 +112,7 @@ class AudioFile:
         N = 2048
         M = 501     #'''bisa di set'''
         H = M/2     #bisa di set manual'
+        
         x = self.datas
         x = np.float32(x)/norm_fact[x.dtype.name]
         fs = self.rates
@@ -141,7 +142,6 @@ class AudioFile:
         numFrames = int(mX[:,0].size)
         frmTime = H*np.arange(numFrames)/float(fs)
         binFreq = fs*np.arange(N*maxplotfreq/fs)/N
-        print np.transpose(mX[:,:int(N*maxplotfreq/fs+1)]).shape
         plt.pcolormesh(frmTime, binFreq, np.transpose(mX[:,:int(N*maxplotfreq/fs+1)]))
         plt.xlabel('time (sec)')
         plt.ylabel('frequency (Hz)')
