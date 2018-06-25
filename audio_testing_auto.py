@@ -30,9 +30,11 @@ models    = [cPickle.load(open(fname,'r')) for fname in gmm_files]
 speakers   = [fname.split("/")[-1].split(".gmm")[0] for fname in gmm_files]
 
 # Read the test directory and get the list of test audio files 
-w_sizes = [256,512,1024,2048, 4096]
+w_sizes = [1024]
 ov_sizes = [0.5]
-tresholds = np.arange(5,9)*0.1
+tresholds = np.arange(7,8)*0.1
+noise_intensity = [50,100,150,200,250]
+duration = [30,40,50,60,70,80]
 paths = []
 for path in file_paths:
     path = path.strip()
@@ -51,7 +53,7 @@ for ind_w in range(len(w_sizes)):
                 #Framing
                 framerate = rates                      #menentukan jumlah frame
                 frame = round(len(audio)/framerate)         #mengukur banyak data/frame
-                n_frames = 1                                   #jumlah frame yang diperiksa
+                n_frames = 1   #DURASI OTOMATIS SESUAI ARRAY                                
                 time_jump = 1                              #lompatan waktu (detik)
                 a = 0                                       #index penunjuk frame
                 while a < len(audio):                    
