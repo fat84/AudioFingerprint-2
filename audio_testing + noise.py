@@ -42,9 +42,9 @@ class Main:
         self.path = ""
         global source, file_paths, models, speakers
         #path to training data
-        source   = "development_set/"
-        modelpath = "pendahuluan_models/"
-        test_file = "development_set_test.txt"    
+        source   = "pupuh_set/"
+        modelpath = "pupuh_models_04/"
+        test_file = "pupuh_set_test.txt"    
         file_paths = open(test_file,'r')
         
         gmm_files = [os.path.join(modelpath,fname) for fname in os.listdir(modelpath) if fname.endswith('.gmm')]
@@ -148,7 +148,7 @@ class Main:
     def proses(self):
         if len(self.path) > 0:
             rates, audio = read(self.path)
-            noise = self.generateNoise(audio.size,100)
+            noise = self.generateNoise(audio.size,5)
             #audio += noise
             print audio
             newAudio = audio + noise
