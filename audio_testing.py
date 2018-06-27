@@ -44,8 +44,6 @@ class Main:
         #path to training data
         source   = "pendahuluan_set/"
         modelpath = "pendahuluan_models/"
-        test_file = "pendahuluan_set_test.txt"    
-        file_paths = open(test_file,'r')
         
         gmm_files = [os.path.join(modelpath,fname) for fname in os.listdir(modelpath) if fname.endswith('.gmm')]
         
@@ -161,6 +159,9 @@ class Main:
             maximum = np.max(mX)
             t = float(self.PTreshTxt.get())
             treshold = (minimum + maximum)*(1-t)
+            print "minimum:",minimum
+            print "maximum:",maximum
+            print "treshold:",treshold
             ploc = peakdetect.peakDetection(mX,treshold)
             if ploc.size != 0:
                 peak_loc = []
@@ -257,7 +258,11 @@ class Main:
                             mX, pX = stft.stftAnal(f_data, rates, w, 2048, H)
                             minimum = np.min(mX)
                             maximum = np.max(mX)
-                            t = tresholds[ind_t]
+                            t = float(self.PTreshTxt.get())
+                            sebaran = np.arange(int(round(minimum)),int(round(maximum)))
+                            s_index = int(sebaran.size*(1-t))
+                            treshold = sebaran[s_index]
+                            print "treshold:",treshold
                             treshold = (minimum + maximum)*(1-t)
                             #print "treshold =",treshold
                             ploc = peakdetect.peakDetection(mX,treshold)

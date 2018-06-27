@@ -19,11 +19,11 @@ import peakdetect
     
     
 #path to training data
-source   = "development_set/"
+source   = "pendahuluan_set/"
 
 #path where training speakers will be saved
-dest = "speaker_models/"
-train_file = "development_set_enroll.txt"
+dest = "pendahuluan_models/"
+train_file = "pendahuluan_set_enroll.txt"
 file_paths = open(train_file,'r')
 
 count = 1
@@ -47,7 +47,9 @@ for path in file_paths:
     minimum = np.min(mX)
     maximum = np.max(mX)
     t = 0.5
-    treshold = (minimum + maximum)*(1-t)
+    sebaran = np.arange(int(round(minimum)),int(round(maximum)))
+    s_index = int(sebaran.size*(1-t))
+    treshold = sebaran[s_index]
     print "treshold =",treshold
     ploc = peakdetect.peakDetection(mX,treshold)
     peak_loc = []
