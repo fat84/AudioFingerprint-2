@@ -100,8 +100,8 @@ for ind_w in range(len(w_sizes)):
                             winner = np.argmax(log_likelihood)
                             
                             #print "score =",log_likelihood
-                            #print "highest score =",np.max(log_likelihood)
-                            #print "\tdetected as - ", speakers[winner]
+                            print "highest score =",np.max(log_likelihood)
+                            print "\tdetected as - ", speakers[winner]
                             #time.sleep(1.0)
                             x.append(paths[ind_p])
                             temp = str(np.min(f_time))

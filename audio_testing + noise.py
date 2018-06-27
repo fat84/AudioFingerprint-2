@@ -148,7 +148,7 @@ class Main:
     def proses(self):
         if len(self.path) > 0:
             rates, audio = read(self.path)
-            noise = self.generateNoise(audio.size,5)
+            noise = self.generateNoise(audio.size,1)
             #audio += noise
             print audio
             newAudio = audio + noise
