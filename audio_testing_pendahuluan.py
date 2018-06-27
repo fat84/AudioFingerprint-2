@@ -16,7 +16,6 @@ from scipy.signal import get_window
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)),'Library/'))
 import stft
 import peakdetect
-import excel
 
 #path to training data
 source   = "pendahuluan_set/"   
@@ -54,7 +53,9 @@ for path in file_paths:
         temp.append(max(mX[i]))
     maximum = max(temp)
     t = 0.5
-    treshold = (minimum - maximum)*(1-t)
+    sebaran = np.arange(int(round(minimum)),int(round(maximum)))
+    s_index = int(sebaran.size*(1-t))
+    treshold = sebaran[s_index]
     print "treshold =",treshold
     ploc = peakdetect.peakDetection(mX,treshold)
     peak_loc = []

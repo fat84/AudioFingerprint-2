@@ -185,7 +185,9 @@ class AudioFile:
             temp.append(max(mX[i]))
         maximum = max(temp)
         t = 0.8
-        treshold = (minimum - maximum)*(1-t)
+        sebaran = np.arange(int(round(minimum)),int(round(maximum)))
+        s_index = int(sebaran.size*(1-t))
+        treshold = sebaran[s_index]
         print "treshold =",treshold
         ploc = peakdetect.peakDetection(mX,treshold)
         peak_loc = []

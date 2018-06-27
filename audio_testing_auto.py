@@ -76,7 +76,9 @@ for ind_w in range(len(w_sizes)):
                         minimum = np.min(mX)
                         maximum = np.max(mX)
                         t = tresholds[ind_t]
-                        treshold = (minimum + maximum)*(1-t)
+                        sebaran = np.arange(int(round(minimum)),int(round(maximum)))
+                        s_index = int(sebaran.size*(1-t))
+                        treshold = sebaran[s_index]
                         #print "treshold =",treshold
                         ploc = peakdetect.peakDetection(mX,treshold)
                         #print a,ploc.size

@@ -158,7 +158,9 @@ class Main:
             minimum = np.min(mX)
             maximum = np.max(mX)
             t = float(self.PTreshTxt.get())
-            treshold = (minimum + maximum)*(1-t)
+            sebaran = np.arange(int(round(minimum)),int(round(maximum)))
+            s_index = int(sebaran.size*(1-t))
+            treshold = sebaran[s_index]
             print "minimum:",minimum
             print "maximum:",maximum
             print "treshold:",treshold
