@@ -16,7 +16,7 @@ sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)),'Librar
 import stft
 import peakdetect
 import pandas as pd
-import random
+
 from Tkinter import *
 import tkMessageBox as msgbox
 import tkFileDialog
@@ -133,7 +133,6 @@ class Main:
         self.proTimeLbl.grid(row=9, column=0, columnspan=4, sticky=W)
     
     def showPeak(self):
-        self.peakLbl.config(text=self.peakloc)
         peakfile = open("Peaks/peak.txt","w")
         for e in self.peakloc:
             peakfile.write("%s\n" % e)
@@ -149,6 +148,7 @@ class Main:
         return np.random.randint(-rad,rad,length)
     def proses(self):
         if len(self.path) > 0:
+            start_time = time.time()
             rates, audio = read(self.path)
             noise = self.generateNoise(audio.size,1)
             #audio += noise
@@ -162,13 +162,14 @@ class Main:
             newAudio = np.float32(newAudio)/norm_fact[newAudio.dtype.name]
             w = get_window('hamming',int(self.WSizeTxt.get()))
             H = int(float(self.WSizeTxt.get())*float(self.OvlSizeTxt.get()))
-            mX, pX = stft.stftAnal(newAudio, rates, w, 2048, H)
+            N = 2048                #STFT rate
+            mX, pX = stft.stftAnal(newAudio, rates, w, N, H)
             minimum = np.min(mX)
             maximum = np.max(mX)
             t = float(self.PTreshTxt.get())
-            sebaran = np.arange(int(round(minimum)),int(round(maximum)))
+            sebaran = np.arange(minimum, maximum)
             s_index = int(sebaran.size*(1-t))
-            treshold = sebaran[s_index]
+            treshold = sebaran[-s_index]
             print "treshold:",treshold
             ploc = peakdetect.peakDetection(mX,treshold)
             
@@ -191,11 +192,17 @@ class Main:
                     log_likelihood[i] = scores.sum()
                 
                 winner = np.argmax(log_likelihood)
-            df = pd.DataFrame(mX[peak_loc])
-            df.to_excel("pupuh_crop/mX peak_loc.xlsx", index=False)
             self.resultLbl.config(text=speakers[winner])
             self.scoreLbl.config(text=np.max(log_likelihood))
             self.peakloc = peak_loc
+            
+            freqaxis = rates*np.arange(N/2)/float(N)
+            loc = []
+            for m in mX[peak_loc]:
+                loc.append(np.argmax(m))
+            Freq = freqaxis[loc]
+            df = pd.DataFrame(Freq)
+            df.to_excel("Frekuensi/Frekuensi Penyusun "+self.path.split("/")[-1].split(".")[0]+".xlsx", index=False)
             
             plt.figure(figsize=(12, 9))
             plt.plot(np.arange(newAudio.size)/float(rates), newAudio)
@@ -224,6 +231,9 @@ class Main:
             self.FreqDomImg = ImageTk.PhotoImage(self.FreqDomImg)
             self.freqDomPlt.config(image=self.FreqDomImg, width=800, height=200)
             self.freqDomPlt.image = self.FreqDomImg
+            end_time = time.time() - start_time
+            self.proTimeLbl.config(text="Identifikasi berakhir dengan total waktu %s detik" 
+                                   % end_time)
         else:
             print "belum ada pupuh diinput"
         
@@ -267,11 +277,11 @@ class Main:
                             mX, pX = stft.stftAnal(f_data, rates, w, 2048, H)
                             minimum = np.min(mX)
                             maximum = np.max(mX)
-                            t = tresholds[ind_t]
-                            treshold = (minimum + maximum)*(1-t)
-                            #print "treshold =",treshold
+                            t = float(self.PTreshTxt.get())
+                            sebaran = np.arange(int(round(minimum)),int(round(maximum)))
+                            s_index = int(sebaran.size*(1-t))
+                            treshold = sebaran[-s_index]
                             ploc = peakdetect.peakDetection(mX,treshold)
-                            #print a,ploc.size
                             if ploc.size != 0:
                                 peak_loc = []
                                 for i in range(len(ploc)-1):

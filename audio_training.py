@@ -16,7 +16,10 @@ from scipy.signal import get_window
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)),'Library/'))
 import stft
 import peakdetect
+import time
     
+#start timer
+start_time = time.time()
     
 #path to training data
 source   = "pendahuluan_set/"
@@ -47,9 +50,9 @@ for path in file_paths:
     minimum = np.min(mX)
     maximum = np.max(mX)
     t = 0.5
-    sebaran = np.arange(int(round(minimum)),int(round(maximum)))
+    sebaran = np.arange(minimum,maximum)
     s_index = int(sebaran.size*(1-t))
-    treshold = sebaran[s_index]
+    treshold = sebaran[-s_index]
     print "treshold =",treshold
     ploc = peakdetect.peakDetection(mX,treshold)
     peak_loc = []
@@ -77,4 +80,7 @@ for path in file_paths:
         features = np.asarray(())
         count = 0
     count = count + 1
-    
+
+#end timer
+end_time = time.time() - start_time
+print "Training data selesai dalam waktu", end_time,"detik."

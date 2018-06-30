@@ -17,6 +17,9 @@ import stft
 import peakdetect
 import pandas as pd
 
+#start timer
+start_time = time.time()
+
 #path to training data
 source   = "pupuh_set/"
 modelpath = "pupuh_models_04/"
@@ -72,13 +75,14 @@ for ind_w in range(len(w_sizes)):
                         f_data = np.float32(f_data)/norm_fact[f_data.dtype.name]
                         w = get_window('hamming',w_sizes[ind_w])
                         H = int(w_sizes[ind_w]*ov_sizes[ind_ov])
-                        mX, pX = stft.stftAnal(f_data, rates, w, 2048, H)
+                        N = 2048                                    #STFT rate
+                        mX, pX = stft.stftAnal(f_data, rates, w, N, H)
                         minimum = np.min(mX)
                         maximum = np.max(mX)
                         t = tresholds[ind_t]
-                        sebaran = np.arange(int(round(minimum)),int(round(maximum)))
+                        sebaran = np.arange(minimum,maximum)
                         s_index = int(sebaran.size*(1-t))
-                        treshold = sebaran[s_index]
+                        treshold = sebaran[-s_index]
                         #print "treshold =",treshold
                         ploc = peakdetect.peakDetection(mX,treshold)
                         #print a,ploc.size
@@ -129,10 +133,13 @@ for ind_w in range(len(w_sizes)):
                 x = np.array(x)
                 x = np.reshape(x,(len(x)/5,5))
                 print x,"\n\n"
-                time.sleep(2)
+                #time.sleep(2)
                 df = pd.DataFrame(x)
                 df.to_excel("coba/PupuhNoiseRandint_"+str(w_sizes[ind_w])+
                             "_"+str(ov_sizes[ind_ov])+"_"+str(tresholds[ind_t])+"_"+str(noise_intensity[ind_noise])+
                             ".xls", index=False)
                 
+#end timer
+end_time = time.time() - start_time
+print "Testing data selesai dalam waktu", end_time,"detik."
             

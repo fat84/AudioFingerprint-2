@@ -10,6 +10,7 @@ from scipy.signal import get_window
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)),'Library/'))
 import stft
 import peakdetect
+import pandas as pd
 
 INT16_FAC = (2**15)-1
 INT32_FAC = (2**31)-1
@@ -21,6 +22,7 @@ class AudioFile:
     def __init__(self, file):
         """ Init audio stream """ 
         self.rates, self.datas = wavfile.read(file)
+        self.filename = file
         '''
         noise = np.random.normal(0,10,self.datas.shape)
         i = 0
@@ -117,7 +119,7 @@ class AudioFile:
         x = np.float32(x)/norm_fact[x.dtype.name]
         fs = self.rates
         w = get_window('hamming',M)
-        
+        global mX
         mX, pX = stft.stftAnal(x, fs, w, N, H)
         y = stft.stftSynth(mX, pX, M, H)
         file = open("Text File/mX.txt","w")
@@ -140,6 +142,7 @@ class AudioFile:
         
         plt.subplot(4,1,2)
         numFrames = int(mX[:,0].size)
+        print numFrames
         frmTime = H*np.arange(numFrames)/float(fs)
         binFreq = fs*np.arange(N*maxplotfreq/fs)/N
         plt.pcolormesh(frmTime, binFreq, np.transpose(mX[:,:int(N*maxplotfreq/fs+1)]))
@@ -176,30 +179,24 @@ class AudioFile:
         
         #print mX.shape
         #proses finding peak
-        temp = []
-        for i in range(mX.shape[0]):
-            temp.append(min(mX[i]))
-        minimum = min(temp)
-        temp = []
-        for i in range(mX.shape[0]):
-            temp.append(max(mX[i]))
-        maximum = max(temp)
+        minimum = np.min(mX)
+        maximum = np.max(mX)
         t = 0.8
-        sebaran = np.arange(int(round(minimum)),int(round(maximum)))
+        sebaran = np.arange(minimum,maximum)
         s_index = int(sebaran.size*(1-t))
-        treshold = sebaran[s_index]
+        treshold = sebaran[-s_index]
         print "treshold =",treshold
         ploc = peakdetect.peakDetection(mX,treshold)
+        global peak_loc
+        global pmag
         peak_loc = []
         for i in range(len(ploc)-1):
             if ploc[i] != ploc[i+1]:
                 peak_loc.append(ploc[i])
         peak_loc.append(ploc[-1])
         peak_loc = np.array(peak_loc)
-        #print "ploc =",ploc
-        #print "peak location =",peak_loc
         
-        #print len(peak_loc)
+        
         file = open("Text File/peaks location.txt","w")
         for item in peak_loc:
             file.write("%s\n" % item)
@@ -232,20 +229,27 @@ class AudioFile:
         pl.ylabel("Magnitude")
         pl.show()
         
-        print "freqaxis shape =",freqaxis.shape
-        print "mX peak shape =",mX[peak_loc].shape
-        
+        '''
         file = open("Text File/peak frequencies.txt","w")
         file.write("Frequency\tMagnitude\n")
         for item in peak_loc:
             file.write("%s\t" % freqaxis[item])
             file.write("%s\n" % mX[peak_loc[0],item])
         file.close()
+        '''
         
         pl.plot(fs * peak_loc/ float(N), pmag)
         pl.xlabel("Frequency")
         pl.ylabel("Magnitude")
         pl.show()
+        
+        #Menampilkan frequensi pada masing-masing Frame hasil STFT
+        loc = []
+        for m in pmag:
+            loc.append(np.argmax(m))
+        Freq = freqaxis[loc]
+        df = pd.DataFrame(Freq)
+        df.to_excel("Frekuensi Penyusun "+self.filename.split("/")[-1].split(".")[0]+".xlsx", index=False)
         
         #execfile("find_peak_cwt.py")
 

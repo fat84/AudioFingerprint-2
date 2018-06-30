@@ -53,9 +53,9 @@ for path in file_paths:
         temp.append(max(mX[i]))
     maximum = max(temp)
     t = 0.5
-    sebaran = np.arange(int(round(minimum)),int(round(maximum)))
+    sebaran = np.arange(minimum,maximum)
     s_index = int(sebaran.size*(1-t))
-    treshold = sebaran[s_index]
+    treshold = sebaran[-s_index]
     print "treshold =",treshold
     ploc = peakdetect.peakDetection(mX,treshold)
     peak_loc = []
