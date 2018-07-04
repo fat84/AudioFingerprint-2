@@ -216,14 +216,10 @@ class Main:
             self.TimeDomImg = ImageTk.PhotoImage(self.TimeDomImg)
             self.timeDomPlt.config(image=self.TimeDomImg, width=800, height=200)
             self.timeDomPlt.image = self.TimeDomImg
-            maxplotfreq = rates/8.82                    #8.82 = maxplotfreq rate
             N = 2048                                    #STFT rate
-            numFrames = int(mX[:,0].size)
-            frmTime = H*np.arange(numFrames)/float(rates)
-            binFreq = rates*np.arange(N*maxplotfreq/rates)/N
-            plt.pcolormesh(frmTime, binFreq, np.transpose(mX[:,:int(N*maxplotfreq/rates+1)]))
-            plt.xlabel('time (sec)')
-            plt.ylabel('frequency (Hz)')
+            plt.plot(mX[peak_loc])
+            plt.xlabel('frequency (Hz)')
+            plt.ylabel('magnitude')
             plt.autoscale(tight=True)
             plt.savefig("Frekuensi Domain Testing Noise.png")
             self.resizeImg("Frekuensi Domain Testing Noise.png")
