@@ -142,7 +142,6 @@ class AudioFile:
         
         plt.subplot(4,1,2)
         numFrames = int(mX[:,0].size)
-        print numFrames
         frmTime = H*np.arange(numFrames)/float(fs)
         binFreq = fs*np.arange(N*maxplotfreq/fs)/N
         plt.pcolormesh(frmTime, binFreq, np.transpose(mX[:,:int(N*maxplotfreq/fs+1)]))
