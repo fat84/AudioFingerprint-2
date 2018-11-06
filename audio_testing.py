@@ -32,7 +32,6 @@ matplotlib.use('TkAgg')
 import cv2
 
 
-
 class Main:
     def __init__(self, parent, title):
         self.parent = parent
@@ -171,7 +170,7 @@ class Main:
             audio = np.float32(audio)/norm_fact[audio.dtype.name]
             w = get_window('hamming',int(self.WSizeTxt.get()))
             H = int(float(self.WSizeTxt.get())*float(self.OvlSizeTxt.get()))
-            N = 2048                #STFT rate
+            N = 2048                #FFT lenght
             mX, pX = stft.stftAnal(audio, rates, w, N, H)
             minimum = np.min(mX)
             maximum = np.max(mX)
